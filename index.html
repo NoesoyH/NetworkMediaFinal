@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SUMM&IT</title>
+
+<link rel="icon" type="image/x-icon" href="SUMMIT_Fabicon.ico">
+<link rel="shortcut icon" type="image/x-icon" href="SUMMIT_Fabicon.ico">
+
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+    html { scroll-behavior: smooth; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { 
+        font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+        background-color: #ffffff;
+        color: #111;
+        overflow-x: hidden; 
+    }
+    a { text-decoration: none; color: inherit; }
+    ul { list-style: none; }
+    button { font-family: inherit; cursor: pointer; }
+
+    header {
+        position: fixed; top: 0; left: 0; width: 100%;
+        background-color: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid #eee;
+        z-index: 1000; height: 80px;
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 0 5%;
+    }
+
+    .logo-img { height: 24px; width: auto; object-fit: contain; display: block; }
+
+    .nav-container {
+        display: flex;
+        align-items: center;
+        flex: 1; 
+    }
+
+    .nav-menu { 
+        display: flex; 
+        gap: 40px; 
+        font-size: 16px; 
+        font-weight: 700; 
+        margin: 0 auto; 
+    }
+    
+    .nav-item { cursor: pointer; transition: color 0.3s ease; color: #000; display: block; }
+    .nav-menu:hover .nav-item { color: #ccc; }
+    .nav-menu .nav-item:hover { color: #000; }
+    .nav-item.active-page { color: #009490 !important; }
+
+    .apply-btn {
+        background-color: #009490; color: white;
+        padding: 13px 32px; 
+        border-radius: 8px;
+        font-weight: 700; font-size: 15px; border: none;
+        cursor: pointer; transition: background-color 0.3s ease; white-space: nowrap;
+    }
+    .apply-btn:hover { background-color: #007570; }
+
+    .menu-toggle { display: none; font-size: 24px; cursor: pointer; color: #333; z-index: 1100; }
+
+    main {
+        width: 100%;
+        display: flex; flex-direction: column; align-items: center;
+    }
+
+    .reveal {
+        opacity: 0;
+        transform: translateY(40px);
+        transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .reveal.active {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    .delay-100 { transition-delay: 0.1s; }
+    .delay-200 { transition-delay: 0.2s; }
+    .delay-300 { transition-delay: 0.3s; }
+
+
+    /*히어로 섹션*/
+    .intro-section {
+        width: 100%;
+        height: 100vh;
+        display: flex; flex-direction: column; justify-content: center;
+        padding: 0 5%;
+        position: relative;
+        color: white; 
+        overflow: hidden;
+    }
+
+    .intro-bg {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: url('https://images.unsplash.com/photo-1491466424936-e304919aada7?q=80&w=2069&auto=format&fit=crop') no-repeat center center/cover;
+        z-index: -2;
+        filter: brightness(0.85); 
+    }
+
+    .spotlight {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), transparent 100px, rgba(0,0,0,0.98) 500px);
+        z-index: -1;
+        pointer-events: none; 
+        transition: background 0.1s ease;
+    }
+    
+    .intro-text-container {
+        position: relative; z-index: 1;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        max-width: 1400px;
+        margin: 0 auto;
+        width: 100%;
+    }
+
+    .intro-label {
+        font-size: 20px; font-weight: 700; color: #00d2d3; margin-bottom: 20px; 
+        display: inline-block;
+    }
+
+    .intro-title {
+        font-size: 52px;
+        font-weight: 800; line-height: 1.2; letter-spacing: -0.5px;
+        color: white; margin-bottom: 40px;
+    }
+    
+    .intro-desc {
+        font-size: 22px; line-height: 1.6; color: #eee; max-width: 700px;
+        font-weight: 500; word-break: keep-all;
+    }
+
+
+    /*숫자 카운터*/
+    .about-section {
+        width: 100%;
+        padding: 150px 5%;
+        background-color: white;
+        display: flex; flex-direction: column; align-items: center;
+        text-align: center;
+    }
+
+    .about-desc {
+        font-size: 26px; font-weight: 700; line-height: 1.6;
+        color: #111; margin-bottom: 100px; max-width: 900px;
+        word-break: keep-all;
+    }
+
+    .stats-box {
+        width: 100%; max-width: 1200px;
+        background-color: #f8f9fa; 
+        border-radius: 24px;
+        padding: 60px 0;
+        display: flex; 
+        justify-content: space-evenly; 
+        align-items: center;
+        border: 1px solid #eee;
+    }
+
+    .stat-item {
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        position: relative;
+        flex: 1;
+    }
+
+    .stat-item:not(:last-child)::after {
+        content: '';
+        position: absolute; right: 0; top: 50%; transform: translateY(-50%);
+        width: 1px; height: 40px;
+        background-color: #e0e0e0;
+    }
+
+    .stat-value {
+        font-size: 56px; font-weight: 800; color: #111;
+        margin-bottom: 10px;
+        font-variant-numeric: tabular-nums; 
+        display: flex; align-items: baseline; justify-content: center;
+    }
+    
+    .stat-unit { font-size: 24px; font-weight: 700; color: #333; margin-left: 4px; }
+    .stat-label { font-size: 18px; color: #666; font-weight: 500; }
+
+
+    /*연혁 섹션*/
+    .history-section {
+        width: 100%;
+        padding: 150px 5%;
+        background-color: #111; 
+        color: white;
+        display: flex; justify-content: center;
+    }
+
+    .history-container { width: 100%; max-width: 1000px; position: relative; }
+    .history-header { text-align: center; margin-bottom: 120px; }
+    .history-title { font-size: 48px; font-weight: 800; line-height: 1.4; color: white; }
+
+    .timeline-wrap { position: relative; padding-left: 120px; }
+    .timeline-line {
+        position: absolute; left: 119px; top: 10px; bottom: 0;
+        width: 2px; background-color: #333;
+    }
+
+    .timeline-year-group { margin-bottom: 100px; position: relative; }
+    
+    .timeline-year-label {
+        position: absolute; left: -120px; top: 0;
+        width: 100px; text-align: right;
+        font-size: 32px; font-weight: 800; color: #fff;
+        line-height: 1;
+    }
+
+    .timeline-dot {
+        position: absolute; left: -7px; top: 5px;
+        width: 16px; height: 16px; border-radius: 50%;
+        background-color: #009490; border: 3px solid #111;
+        z-index: 2;
+    }
+
+    .timeline-content-list {
+        display: flex; flex-direction: column; gap: 40px;
+        padding-left: 40px; border-left: 2px solid rgba(255,255,255,0.1);
+        margin-left: 0px; 
+    }
+
+    .history-item {
+        display: flex; flex-direction: column; gap: 8px;
+        position: relative;
+    }
+    
+    .history-item::before {
+        content: ''; position: absolute; left: -45px; top: 10px;
+        width: 8px; height: 8px; border-radius: 50%; background-color: #555;
+    }
+
+    .history-project-title { font-size: 20px; font-weight: 700; color: #eee; margin-bottom: 6px; }
+    .history-award { font-size: 16px; font-weight: 600; color: #00d2d3; display: inline-block; margin-left: 8px; }
+    .history-desc { font-size: 16px; color: #aaa; line-height: 1.6; padding-left: 0; margin: 0; }
+    .history-desc li { list-style: none; position: relative; padding-left: 14px; margin-bottom: 4px; }
+    .history-desc li::before { content: '-'; position: absolute; left: 0; color: #666; }
+
+
+    /*커리큘럼 섹션*/
+    .activity-section {
+        width: 100%;
+        padding: 150px 0; 
+        background-color: white;
+        overflow: hidden;
+    }
+
+    .activity-header { padding: 0 5%; max-width: 1200px; margin: 0 auto 60px; }
+    
+    .section-title { font-size: 48px; font-weight: 800; margin-bottom: 20px; }
+    .section-sub { font-size: 18px; color: #666; max-width: 600px; line-height: 1.6; }
+
+    .curriculum-scroll-container {
+        display: flex;
+        gap: 24px;
+        overflow-x: auto;
+        padding-left: max(5%, calc((100% - 1200px) / 2));
+        padding-right: 5%;
+        padding-bottom: 60px;
+        -webkit-overflow-scrolling: touch;
+        scroll-behavior: auto; 
+        scrollbar-width: none; 
+        -ms-overflow-style: none; 
+    }
+    .curriculum-scroll-container::-webkit-scrollbar { display: none; }
+
+    .curriculum-card {
+        flex: 0 0 340px; 
+        background: #f9f9f9;
+        border-radius: 20px;
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 1px solid #eee;
+        display: flex; flex-direction: column;
+    }
+    .curriculum-card:hover { transform: translateY(-10px); box-shadow: 0 15px 40px rgba(0,0,0,0.1); }
+
+    .card-visual { width: 100%; height: 200px; background-color: #eee; position: relative; }
+    .card-visual img { width: 100%; height: 100%; object-fit: cover; }
+
+    .step-badge {
+        position: absolute; top: 20px; left: 20px;
+        background-color: #009490; color: white;
+        font-weight: 800; padding: 6px 14px; border-radius: 8px;
+        font-size: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    .card-content { padding: 30px; flex: 1; display: flex; flex-direction: column; }
+    .curri-title { font-size: 22px; font-weight: 700; margin-bottom: 12px; color: #111; }
+    .curri-desc { font-size: 15px; color: #666; line-height: 1.6; word-break: keep-all; }
+
+
+    /*최근 프로젝트*/
+    .preview-section {
+        width: 100%; 
+        padding: 0 5% 150px;
+        background-color: white;
+        display: flex; flex-direction: column; align-items: center;
+    }
+    
+    .preview-header { margin-bottom: 120px; }
+
+    .preview-grid {
+        width: 100%; max-width: 1200px;
+        display: grid; grid-template-columns: repeat(3, 1fr);
+        gap: 24px; margin-bottom: 60px;
+    }
+
+    .preview-card {
+        position: relative; width: 100%; aspect-ratio: 4 / 3;
+        border-radius: 16px; overflow: hidden; cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        background-color: #eee;
+    }
+    .preview-card:hover { transform: translateY(-8px); }
+    .preview-thumb { width: 100%; height: 100%; object-fit: cover; }
+    .preview-overlay {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background-color: rgba(0, 0, 0, 0.7); opacity: 0;
+        transition: opacity 0.3s ease;
+        display: flex; align-items: center; justify-content: center;
+    }
+    .preview-card:hover .preview-overlay { opacity: 1; }
+    .preview-logo { max-width: 60%; max-height: 50%; filter: brightness(0) invert(1); }
+
+    .view-all-btn {
+        padding: 15px 40px;
+        background-color: white; border: 1px solid #ddd;
+        border-radius: 30px; font-size: 16px; font-weight: 700;
+        color: #333; transition: 0.3s;
+    }
+    .view-all-btn:hover { background-color: #f5f5f5; border-color: #bbb; }
+
+
+    /*팀문화&모집 안내로 이어지는 카드*/
+    .nav-link-section {
+        width: 100%;
+        padding: 0 5% 120px; 
+        background-color: white;
+        display: flex; justify-content: center;
+    }
+
+    .nav-link-grid {
+        width: 100%; max-width: 1200px;
+        display: grid; grid-template-columns: repeat(2, 1fr);
+        gap: 30px;
+    }
+
+    .nav-link-card {
+        background-color: white;
+        border: 1px solid #eee;
+        border-radius: 20px;
+        padding: 50px;
+        display: flex; justify-content: space-between; align-items: flex-start;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        cursor: pointer;
+    }
+    .nav-link-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
+
+    .nav-link-content { display: flex; flex-direction: column; gap: 40px; justify-content: space-between; height: 100%; }
+    
+    .nav-link-title {
+        font-size: 28px; font-weight: 800; line-height: 1.4; color: #111;
+        word-break: keep-all;
+    }
+
+    .nav-link-btn {
+        display: inline-flex; align-items: center; gap: 10px;
+        background-color: #111; color: white;
+        padding: 12px 24px; border-radius: 50px;
+        font-size: 16px; font-weight: 600;
+        width: fit-content; transition: background 0.3s;
+    }
+    .nav-link-btn:hover { background-color: #333; }
+
+    .nav-link-icon-box {
+        width: 120px; height: 120px;
+        display: flex; align-items: center; justify-content: center;
+        background-color: #f4f6f8; border-radius: 50%;
+        color: #ddd; flex-shrink: 0;
+        overflow: hidden; 
+    }
+    .nav-link-icon-img { 
+        width: 60%; height: 60%; 
+        object-fit: contain; 
+    }
+
+
+    /*스폰서 섹션*/
+    .sponsor-section {
+        width: 100%; padding: 100px 5%;
+        background-color: #f4f6f8;
+        text-align: center;
+        display: flex; flex-direction: column; align-items: center;
+    }
+    .sponsor-title { font-size: 36px; font-weight: 800; margin-bottom: 20px; }
+    .sponsor-desc { font-size: 18px; color: #666; margin-bottom: 50px; }
+    .sponsor-logos {
+        display: flex; gap: 60px; justify-content: center; align-items: center; flex-wrap: wrap;
+    }
+
+    .sponsor-logo-img {
+        height: 60px;
+        width: auto;
+        object-fit: contain;
+        filter: grayscale(100%); 
+        opacity: 0.7;
+        transition: all 0.3s ease;
+    }
+    .sponsor-logo-img:hover { filter: grayscale(0%); opacity: 1; }
+
+
+    /*CTA*/
+    .cta-section {
+        width: 100%; padding: 150px 5%;
+        background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('Recruitment/Recruitment_hero.png') no-repeat center center/cover;
+        text-align: center;
+        border-radius: 0; 
+        max-width: 100%; 
+        margin: 0;
+        color: white; 
+    }
+    
+    .cta-title { 
+        font-size: 32px; font-weight: 700; margin-bottom: 50px; 
+        word-break: keep-all; line-height: 1.8; color: white;
+    }
+    
+    .cta-btn {
+        display: inline-block;
+        background-color: white; color: #111; 
+        padding: 20px 60px; border-radius: 50px;
+        font-size: 20px; font-weight: 700;
+        transition: transform 0.3s ease, background-color 0.3s ease;
+    }
+    .cta-btn:hover { background-color: #009490; color: white; transform: scale(1.05); }
+
+    footer { width: 100%; background-color: #1a1a1a; color: white; padding: 60px 5%; }
+    .footer-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 40px; }
+    .footer-left { flex: 1; min-width: 250px; }
+    .footer-logo { height: 30px; margin-bottom: 20px; opacity: 0.9; filter: brightness(0) invert(1); }
+    .footer-tagline { font-size: 24px; font-weight: 700; margin-bottom: 10px; }
+    .footer-sub { font-size: 14px; color: #888; margin-bottom: 40px; }
+    .copyright { font-size: 13px; color: #666; }
+    .footer-right { display: flex; gap: 60px; flex-wrap: wrap; }
+    .footer-column h4 { font-size: 14px; font-weight: 700; text-transform: uppercase; margin-bottom: 20px; color: #ccc; }
+    .footer-column p { font-size: 14px; color: #999; margin-bottom: 10px; line-height: 1.6; }
+    .social-icons { display: flex; gap: 15px; margin-top: 20px; }
+    .social-icon { 
+        width: 36px; height: 36px; background: #333; border-radius: 4px; 
+        display: flex; align-items: center; justify-content: center; 
+        cursor: pointer; transition: 0.3s; color: #aaa; font-size: 18px;
+    }
+    .social-icon:hover { background: #555; color: white; }
+
+    @media (max-width: 1024px) {
+        .intro-title { font-size: 42px; }
+        .stats-box { flex-wrap: wrap; }
+        .stat-item { flex: 0 0 50%; margin-bottom: 30px; }
+        .stat-item:nth-child(1)::after, .stat-item:nth-child(3)::after { display: block; }
+        .stat-item:nth-child(2)::after, .stat-item:nth-child(4)::after { display: none; }
+        .preview-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 768px) {
+        header { padding: 0 20px; justify-content: space-between; }
+        .logo-img { order: 0; }
+        .menu-toggle { display: block; order: 1; margin-left: auto; }
+        
+        .nav-container {
+            display: flex; position: absolute; top: 79px; left: 0; width: 100%;
+            background: white; flex-direction: column; align-items: flex-start;
+            gap: 0; overflow: hidden; max-height: 0; opacity: 0;
+            transition: max-height 0.4s ease-in-out, opacity 0.4s ease-in-out;
+            border-bottom: 1px solid #eee;
+        }
+        .nav-container.active { max-height: 500px; opacity: 1; padding-bottom: 20px; }
+        .nav-menu { flex-direction: column; width: 100%; gap: 0; margin: 0; }
+        .nav-item { width: 100%; padding: 20px 24px; font-size: 18px; border-bottom: 1px solid #f5f5f5; }
+        .apply-btn { margin: 20px 24px; width: calc(100% - 48px); text-align: center; display: block; }
+        
+        .intro-title { font-size: 32px; }
+        .intro-desc { font-size: 18px; }
+        .about-desc { font-size: 20px; margin-bottom: 50px; }
+        .stats-box { padding: 40px 20px; }
+        .stat-item { flex: 0 0 100%; margin-bottom: 30px; }
+        .stat-item::after { display: none !important; }
+        
+        .history-title { font-size: 32px; }
+        .timeline-wrap { padding-left: 20px; }
+        .timeline-year-label { position: relative; left: 0; text-align: left; margin-bottom: 20px; display: block; }
+        .timeline-line { left: 9px; }
+        .timeline-content-list { padding-left: 25px; margin-left: 10px; border-left: 1px solid rgba(255,255,255,0.1); }
+        .history-item::before { left: -30px; }
+
+        .section-title { font-size: 36px; }
+        .preview-grid { grid-template-columns: 1fr; }
+        .curriculum-card { flex: 0 0 280px; }
+        
+        .nav-link-grid { grid-template-columns: 1fr; }
+        .nav-link-card { padding: 30px; }
+        .nav-link-title { font-size: 24px; }
+        
+        .sponsor-logos { gap: 30px; }
+        .cta-title { font-size: 28px; }
+        .footer-content { flex-direction: column; gap: 40px; }
+        .footer-right { flex-direction: column; gap: 30px; }
+    }
+</style>
+</head>
+<body>
+
+    <header>
+        <a href="index.html"><img src="SUMM&IT logo.png" alt="SUMM&IT" class="logo-img"></a>
+        <div class="menu-toggle" id="mobile-menu-btn">☰</div>
+        <div class="nav-container" id="nav-container">
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-item active-page">써밋 소개</a></li>
+                <li><a href="Projects.html" class="nav-item">프로젝트</a></li>
+                <li><a href="TeamCulture.html" class="nav-item">팀 문화</a></li>
+                <li><a href="Recruitment.html" class="nav-item">모집 안내</a></li>
+            </ul>
+            <button class="apply-btn" onclick="location.href='Apply.html'">지원하기</button>
+        </div>
+    </header>
+
+    <main>
+        <!--히어로섹션 내용-->
+        <section class="intro-section" id="intro-section">
+            <div class="intro-bg"></div>
+            <div class="spotlight" id="spotlight"></div>
+            
+            <div class="intro-text-container">
+                <span class="intro-label reveal">What is SUMM&IT?</span>
+                <h1 class="intro-title reveal delay-100">
+                    Sogang Undergraduate<br>
+                    Marketing Major &<br>
+                    Incredible Talents
+                </h1>
+                <p class="intro-desc reveal delay-200">
+                    써밋은 서강대학교 유일의 실전 마케팅 학회입니다.<br>
+                    우리는 강의실 밖에서 진짜 문제를 해결하며, 마케팅의 정상을 향해 함께 성장합니다.
+                </p>
+            </div>
+        </section>
+
+        <!-- 학회 설명-->
+        <section class="about-section">
+            <div class="section-inner reveal">
+                <p class="about-desc">
+                    마케팅에 대한 심도 깊은 이론적 학습과 이를 이용한 실제적 활용을 위해<br>
+                    서강대학교 학부생들이 자발적으로 구성한 실전 마케팅 학회입니다
+                </p>
+                
+                <div class="stats-box">
+                    <div class="stat-item">
+                        <div class="stat-value"><span class="counter" data-target="16">0</span><span class="stat-unit">년</span></div>
+                        <div class="stat-label">써밋 운영 기간</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value"><span class="counter" data-target="32">0</span><span class="stat-unit">기</span></div>
+                        <div class="stat-label">운영 기수</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value"><span class="counter" data-target="46">0</span><span class="stat-unit">+</span></div>
+                        <div class="stat-label">함께한 기업</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value"><span class="counter" data-target="205">0</span><span class="stat-unit">+</span></div>
+                        <div class="stat-label">누적 활동 인원</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!--연혁 섹션-->
+        <section class="history-section">
+            <div class="history-container">
+                <div class="history-header reveal">
+                    <h2 class="history-title">써밋은 오늘도<br>위대한 역사를 만들고 있습니다</h2>
+                </div>
+                
+                <div class="timeline-wrap">
+                    <div class="timeline-line"></div>
+                    
+                    <div class="timeline-year-group">
+                        <span class="timeline-year-label reveal">2025</span>
+                        <div class="timeline-dot reveal"></div>
+                        <div class="timeline-content-list">
+                            <div class="history-item reveal">
+                                <div class="history-project-title">동아제약 <span class="history-award">내부 산학협력</span></div>
+                                <ul class="history-desc">
+                                    <li>구취 제거 캡슐 신제품 BTL 운영 전략</li>
+                                    <li>여성 아이돌 모델 활용한 매운다이어트 커뮤니케이션 전략 도출</li>
+                                </ul>
+                            </div>
+                            <div class="history-item reveal delay-100">
+                                <div class="history-project-title">다운타우너 <span class="history-award">장려상 1팀</span></div>
+                                <ul class="history-desc">
+                                    <li>20대 소비자의 니즈를 반영한 신규 고객 확보 및 기존 팬덤 강화 방안</li>
+                                </ul>
+                            </div>
+                            <div class="history-item reveal delay-200">
+                                <div class="history-project-title">동원F&B <span class="history-award">대상, 최우수, 우수</span></div>
+                                <ul class="history-desc">
+                                    <li>아르르: 펫 시장 전략적 방향성 및 해외 수출 가능성 분석</li>
+                                    <li>뉴트리플랜: 반려묘 습식시장 브랜딩 및 신제품 타겟 전략</li>
+                                </ul>
+                            </div>
+                            <div class="history-item reveal delay-300">
+                                <div class="history-project-title">GS칼텍스 <span class="history-award">최우수상 1팀</span></div>
+                                <ul class="history-desc">
+                                    <li>에너지플러스앱 UX/UI 개선 및 연계 프로모션 제안</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="timeline-year-group">
+                        <span class="timeline-year-label reveal">2024</span>
+                        <div class="timeline-dot reveal"></div>
+                        <div class="timeline-content-list">
+                            <div class="history-item reveal">
+                                <div class="history-project-title">하나증권 <span class="history-award">장려상 1팀</span></div>
+                                <ul class="history-desc">
+                                    <li>하나증권 MTS 이용자 사용 프로세스 분석 및 개선, 유입 방안</li>
+                                </ul>
+                            </div>
+                            <div class="history-item reveal delay-100">
+                                <div class="history-project-title">롯데렌터카 G car <span class="history-award">대상 1팀, 최우수 1팀</span></div>
+                                <ul class="history-desc">
+                                    <li>브랜드 인지도 강화를 위한 IMC 마케팅 전략</li>
+                                    <li>롯데렌터카 G car 서비스 개선 및 신규 서비스 제안</li>
+                                </ul>
+                            </div>
+                            <div class="history-item reveal delay-200">
+                                <div class="history-project-title">콘티넨탈타이어 <span class="history-award">최우수상 1팀, 장려상 1팀</span></div>
+                                <ul class="history-desc">
+                                    <li>Make Way for Confidence 스토리텔링을 각인 및 인지도 강화 커뮤니케이션 전략</li>
+                                    <li>프리미엄 포지셔닝 강조 및 타겟 접점 확대 콜라보 전략</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!--커리큘럼 섹션 내용-->
+        <section class="activity-section">
+            <div class="activity-header reveal">
+                <h2 class="section-title">Our Curriculum</h2>
+                <p class="section-sub">16주간의 여정, 실전 마케터로 거듭나는 과정입니다.</p>
+            </div>
+            
+            <div class="curriculum-scroll-container reveal delay-100">
+                <div class="curriculum-card">
+                    <div class="card-visual"><img src="WhatIsSummit/Curriculum1.jpg" alt="Pre-Session">
+                        <div class="step-badge">01</div>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="curri-title">Pre-Session</h3>
+                        <p class="curri-desc">정규 세션 전, 마케팅 기초 역량을 다지고 동기들과 친해지는 워밍업 단계입니다.</p>
+                    </div>
+                </div>
+                <div class="curriculum-card">
+                    <div class="card-visual"><img src="WhatIsSummit/Curriculum2.jpg" alt="Internal Project">
+                        <div class="step-badge">02</div>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="curri-title">Internal Project</h3>
+                        <p class="curri-desc">학회 내부에서 기업의 실제 과제를 해결하며 실전 감각을 익히는 첫 번째 프로젝트입니다.</p>
+                    </div>
+                </div>
+                <div class="curriculum-card">
+                    <div class="card-visual"><img src="WhatIsSummit/Curriculum3.jpg" alt="IBS Project">
+                        <div class="step-badge">03</div>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="curri-title">IBS Project</h3>
+                        <p class="curri-desc">연합 경영 학회들과 경쟁하며 더 넓은 시각에서 마케팅 전략을 수립합니다.</p>
+                    </div>
+                </div>
+                <div class="curriculum-card">
+                    <div class="card-visual"><img src="WhatIsSummit/Curriculum4.jpg" alt="Competition">
+                        <div class="step-badge">04</div>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="curri-title">Competition</h3>
+                        <p class="curri-desc">대외 공모전에 팀으로 참여하여 수상에 도전하고 포트폴리오를 강화합니다.</p>
+                    </div>
+                </div>
+                <div class="curriculum-card">
+                    <div class="card-visual"><img src="WhatIsSummit/Curriculum5.jpg" alt="Alumni">
+                        <div class="step-badge">05</div>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="curri-title">Alumni Networking</h3>
+                        <p class="curri-desc">현직에 계신 선배님들의 멘토링과 특강을 통해 커리어 로드맵을 그립니다.</p>
+                    </div>
+                </div>
+                <div class="curriculum-card">
+                    <div class="card-visual"><img src="WhatIsSummit/Curriculum6.jpg" alt="Social">
+                        <div class="step-badge">06</div>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="curri-title">Social Session</h3>
+                        <p class="curri-desc">MT, 번개, 뒷풀이 등 끈끈한 유대감을 형성하는 즐거운 네트워킹 시간입니다.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!--최근 프로젝트-->
+        <section class="preview-section">
+            <div class="section-header preview-header reveal">
+                <h2 class="section-title">Recent Projects</h2>
+            </div>
+            
+            <div class="preview-grid reveal delay-100">
+                <div class="preview-card" onclick="location.href='Projects.html'">
+                    <img src="Projects/Musinsa3.jpg" class="preview-thumb">
+                    <div class="preview-overlay">
+                        <img src="https://image.msscdn.net/display/images/2024/07/19/e6d1f7cb7b5544929ac6dcdf92c5b821.png" class="preview-logo" onerror="this.style.display='none'">
+                    </div>
+                </div>
+                <div class="preview-card" onclick="location.href='Projects.html'">
+                    <img src="Projects/Dongwon1.png" class="preview-thumb">
+                    <div class="preview-overlay">
+                        <img src="Projects/DongwonFnb_logo.png" class="preview-logo" onerror="this.style.display='none'">
+                    </div>
+                </div>
+                <div class="preview-card" onclick="location.href='Projects.html'">
+                    <img src="Projects/GSCaltex1.png" class="preview-thumb">
+                    <div class="preview-overlay">
+                        <img src="Projects/GSCaltex_logo.png" class="preview-logo" onerror="this.style.display='none'">
+                    </div>
+                </div>
+            </div>
+
+            <button class="view-all-btn reveal" onclick="location.href='Projects.html'">전체 프로젝트 보기</button>
+        </section>
+
+        <!--팀문화&모집안내 바로가기-->
+        <section class="nav-link-section reveal">
+            <div class="nav-link-grid">
+                <!--팀문화 카드-->
+                <div class="nav-link-card" onclick="location.href='TeamCulture.html'">
+                    <div class="nav-link-content">
+                        <h3 class="nav-link-title">써밋의 구성원들은<br>어떤 문화 속에서<br>성장할까요?</h3>
+                        <div class="nav-link-btn">팀 문화 보러가기 <i class="fas fa-arrow-right"></i></div>
+                    </div>
+                    <div class="nav-link-icon-box">
+                        <img src="WhatIsSummit/TeamCulture.png" alt="Team Culture" class="nav-link-icon-img">
+                    </div>
+                </div>
+                <!--모집 안내 카드-->
+                <div class="nav-link-card" onclick="location.href='Recruitment.html'">
+                    <div class="nav-link-content">
+                        <h3 class="nav-link-title">써밋과 함께할<br>열정적인 동료를<br>기다립니다!</h3>
+                        <div class="nav-link-btn">모집 안내 보러가기 <i class="fas fa-arrow-right"></i></div>
+                    </div>
+                    <div class="nav-link-icon-box">
+                        <img src="WhatIsSummit/Recruitment.png" alt="Recruitment" class="nav-link-icon-img">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!--스폰서-->
+        <section class="sponsor-section reveal">
+            <h2 class="sponsor-title">Sponsors</h2>
+            <p class="sponsor-desc">써밋은 여러분의 성장을 위해 다양한 파트너와 함께합니다.</p>
+            <div class="sponsor-logos">
+                <img src="https://resource.pickply.com/inblog/appKorLogo.png" alt="Pickply" class="sponsor-logo-img">
+                <img src="https://image.inblog.dev/?url=https%3A%2F%2Fsource.inblog.dev%2Flogo%2F2025-06-04T02%3A29%3A32.996Z-bc103020-eace-4a29-aadf-41d508757983&w=480&q=75" alt="CodeIt" class="sponsor-logo-img">
+            </div>
+        </section>
+
+        <!--CTA-->
+        <section class="cta-section reveal">
+            <h2 class="cta-title">SUMM&IT과 함께 성장할<br>33기를 모집합니다</h2>
+            <a href="Apply.html" class="cta-btn">지원하기</a>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-left">
+                <img src="SUMM&IT logo.png" alt="Logo" class="footer-logo">
+                <div class="footer-tagline">서강대학교 실전 마케팅 학회</div>
+                <div class="footer-sub">실전 압축 경험으로 마케팅의 정상에 도전하다!</div>
+                <div class="copyright">Copyright © 2025 SUMM&IT. All Rights Reserved.</div>
+            </div>
+            <div class="footer-right">
+                <div class="footer-column">
+                    <h4>CONTACT US</h4>
+                    <p>sogangsummit@gmil.com</p>
+                    <p>학회장 010-9969-3078</p>
+                    <div class="social-icons">
+                        <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h4>Location</h4>
+                    <p>서울특별시 마포구 백범로 35</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+<script>
+    // 네비게이션 모바일 토글
+    document.getElementById('mobile-menu-btn').addEventListener('click', () => {
+        document.getElementById('nav-container').classList.toggle('active');
+    });
+
+    document.querySelectorAll('.nav-item').forEach(link => {
+        link.addEventListener('click', () => {
+            document.getElementById('nav-container').classList.remove('active');
+        });
+    });
+
+    // 스크롤 애니메이션
+    const observerOptions = {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.1
+    };
+
+    const observer = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('active');
+                observer.unobserve(entry.target); 
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.reveal').forEach(el => {
+        observer.observe(el);
+    });
+
+    // 히어로 섹션 스포트라이트 효과
+    const introSection = document.getElementById('intro-section');
+    const spotlight = document.getElementById('spotlight');
+
+    introSection.addEventListener('mousemove', (e) => {
+        const rect = introSection.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        spotlight.style.setProperty('--mouse-x', `${x}px`);
+        spotlight.style.setProperty('--mouse-y', `${y}px`);
+    });
+
+    // 숫자 카운팅 애니메이션
+    const counterObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const counters = entry.target.querySelectorAll('.counter');
+                counters.forEach(counter => {
+                    const target = +counter.getAttribute('data-target');
+                    const duration = 2000; 
+                    const startTime = performance.now();
+
+                    function updateCount(currentTime) {
+                        const elapsed = currentTime - startTime;
+                        const progress = Math.min(elapsed / duration, 1);
+                        const easeOut = 1 - Math.pow(1 - progress, 3);
+                        
+                        const current = Math.floor(target * easeOut);
+                        counter.innerText = current;
+
+                        if (progress < 1) {
+                            requestAnimationFrame(updateCount);
+                        } else {
+                            counter.innerText = target;
+                        }
+                    }
+                    requestAnimationFrame(updateCount);
+                });
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.5 });
+
+    const statsBox = document.querySelector('.stats-box');
+    if(statsBox) {
+        counterObserver.observe(statsBox);
+    }
+
+    // 커리큘럼 가로 스크롤
+    const scrollContainer = document.querySelector('.curriculum-scroll-container');
+    
+    if (scrollContainer) {
+        scrollContainer.addEventListener('wheel', (evt) => {
+            if (!evt.shiftKey) {
+                evt.preventDefault();
+                scrollContainer.scrollLeft += evt.deltaY * 1;
+            }
+        });
+    }
+
+</script>
+</body>
+</html>

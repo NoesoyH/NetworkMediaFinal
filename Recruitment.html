@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SUMM&IT</title>
+
+<link rel="icon" type="image/x-icon" href="SUMMIT_Fabicon.ico">
+<link rel="shortcut icon" type="image/x-icon" href="SUMMIT_Fabicon.ico">
+
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+    html { scroll-behavior: smooth; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { 
+        font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+        background-color: #000000; 
+        color: #333;
+        overflow-x: hidden; 
+    }
+    a { text-decoration: none; color: inherit; }
+    ul { list-style: none; }
+    button { font-family: inherit; cursor: pointer; }
+
+    header {
+        position: fixed; top: 0; left: 0; width: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid #000000;
+        z-index: 1000; height: 80px;
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 0 5%;
+    }
+
+    .logo-img { height: 24px; width: auto; object-fit: contain; display: block; filter: brightness(0) invert(1); }
+
+    .nav-container {
+        display: flex;
+        align-items: center;
+        flex: 1; 
+    }
+
+    .nav-menu { 
+        display: flex; 
+        gap: 40px; 
+        font-size: 16px; 
+        font-weight: 700; 
+        margin: 0 auto; 
+    }
+    
+    .nav-item { cursor: pointer; transition: color 0.3s ease; color: #ccc; display: block; }
+    .nav-menu:hover .nav-item { color: #828282; }
+    .nav-menu .nav-item:hover { color: #ffffff; }
+    .nav-item.active-page { color: #009490 !important; }
+
+    .apply-btn {
+        background-color: #009490; color: white;
+        padding: 13px 32px; 
+        border-radius: 8px;
+        font-weight: 700; font-size: 15px; border: none;
+        cursor: pointer; transition: background-color 0.3s ease; white-space: nowrap;
+    }
+    .apply-btn:hover { background-color: #007570; }
+
+    .menu-toggle { display: none; font-size: 24px; cursor: pointer; color: #333; z-index: 1100; }
+
+    main {
+        display: flex; flex-direction: column; align-items: center;
+        padding-top: 80px;
+        width: 100%;
+        min-height: 100vh;
+        gap:120px;
+    }
+
+    .section-container { width: 100%; max-width: 1200px; padding: 0 20px; }
+    .section-title { font-size: 42px; font-weight: 800; margin-bottom: 60px; text-align: left; color: white; letter-spacing: -1px; }
+    
+    .scroll-reveal {
+        opacity: 0; transform: translateY(30px);
+        transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+    }
+    .scroll-reveal.visible { opacity: 1; transform: translateY(0); }
+    .delay-100 { transition-delay: 0.1s; }
+    .delay-200 { transition-delay: 0.2s; }
+
+
+    /*히어로 섹션*/
+    .recruit-hero {
+        width: 100%; height: 100vh; position: relative; overflow: hidden;
+        display: flex; flex-direction: column; 
+        align-items: center; justify-content: center;
+        margin-top: -80px;
+    }
+
+    .hero-bg-container {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        z-index: 1; overflow: hidden;
+    }
+    .hero-bg-img {
+        width: 100%; height: 100%; object-fit: cover;
+        filter: brightness(0.6); 
+        animation: initialZoom 2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        transform-origin: center;
+    }
+
+    .hero-content {
+        position: relative; z-index: 2; text-align: center;
+        opacity: 0; transform: translateY(30px);
+        animation: fadeInUp 1s ease-out 0.5s forwards;
+    }
+
+    .hero-logo-large {
+        height: 60px; width: auto; margin-bottom: 20px;
+        filter: brightness(0) invert(1); opacity: 0.9;
+    }
+
+    .hero-title-large {
+        font-size: 80px; font-weight: 900; color: white;
+        letter-spacing: -2px; line-height: 1; margin: 0;
+        text-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    
+    .scroll-indicator {
+        position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+        z-index: 2; color: rgba(255,255,255,0.5); font-size: 14px;
+        animation: bounce 2s infinite;
+    }
+
+
+    /*인재상*/
+    .ideal-grid {
+        display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+    }
+
+    .flip-card {
+        background-color: transparent;
+        width: 100%; aspect-ratio: 1 / 1;
+        perspective: 1000px; cursor: pointer;
+    }
+
+    .flip-card-inner {
+        position: relative; width: 100%; height: 100%;
+        transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        transform-style: preserve-3d;
+        border-radius: 24px;
+    }
+
+    .flip-card:hover .flip-card-inner { transform: rotateY(180deg); }
+
+    .flip-card-front, .flip-card-back {
+        position: absolute; width: 100%; height: 100%;
+        -webkit-backface-visibility: hidden; backface-visibility: hidden;
+        border-radius: 24px; padding: 36px;
+        display: flex; flex-direction: column;
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .flip-card-front {
+        background-color: #1a1a1a; 
+        justify-content: space-between; align-items: flex-start;
+    }
+    .ideal-text {
+        font-size: 24px; font-weight: 700; line-height: 1.4; 
+        color: #fff; word-break: keep-all; text-align: left;
+    }
+    .ideal-icon-wrapper {
+        width: 100%; display: flex; justify-content: flex-end;
+    }
+    .ideal-icon { width: 120px; height: 120px; object-fit: contain; opacity: 0.9; }
+
+    .flip-card-back {
+        background-color: #009490; color: white;
+        transform: rotateY(180deg);
+        justify-content: flex-start; align-items: flex-start; text-align: left;
+        border: none;
+    }
+    .ideal-desc { 
+        font-size: 18px; line-height: 1.6; word-break: keep-all; font-weight: 600;
+        margin-top: 10px;
+    }
+
+
+    /*모집 일정*/
+    .timeline-container {
+        display: flex; flex-direction: column; gap: 50px;
+    }
+
+    .timeline-nav {
+        display: flex; justify-content: space-between; align-items: flex-start;
+        position: relative; padding: 0 40px; margin-bottom: 20px;
+    }
+    
+    .timeline-line-bg {
+        position: absolute; top: 25px; left: 60px; right: 60px; height: 2px;
+        background-color: #333; z-index: 0;
+    }
+    
+    .timeline-step-btn {
+        position: relative; z-index: 1;
+        display: flex; flex-direction: column; align-items: center;
+        background: none; border: none; cursor: pointer;
+        width: 120px; transition: transform 0.3s;
+    }
+    
+    .step-circle {
+        width: 50px; height: 50px; 
+        background-color: #111; border: 2px solid #333; color: #888;
+        border-radius: 50%; display: flex; align-items: center; justify-content: center;
+        font-size: 18px; font-weight: 800; margin-bottom: 15px;
+        transition: all 0.3s;
+    }
+    
+    .timeline-step-btn:hover .step-circle,
+    .timeline-step-btn.active .step-circle {
+        border-color: #009490; background-color: #1a1a1a; color: #009490;
+        box-shadow: 0 0 15px rgba(0, 148, 144, 0.4); transform: scale(1.1);
+    }
+    
+    .step-label {
+        font-size: 16px; font-weight: 700; color: #888; transition: 0.3s;
+    }
+    .timeline-step-btn.active .step-label { color: #fff; }
+
+
+    .timeline-detail-box {
+        background-color: #1a1a1a;
+        border-radius: 24px;
+        padding: 60px;
+        border: 1px solid rgba(255,255,255,0.05);
+        display: flex; align-items: center; justify-content: space-between;
+        gap: 60px; min-height: 320px;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    }
+
+    .detail-left { flex: 1.5; text-align: left; }
+    
+    .detail-title { 
+        font-size: 42px; font-weight: 800; color: white; margin-bottom: 20px; 
+    }
+    
+    .detail-date { 
+        display: inline-block; 
+        background-color: rgba(0, 148, 144, 0.2); color: #00d2d3;
+        padding: 8px 16px; border-radius: 8px; font-size: 18px; font-weight: 700; 
+        margin-bottom: 30px;
+    }
+    
+    .detail-desc { font-size: 20px; color: #ccc; line-height: 1.7; word-break: keep-all; }
+
+    .detail-right { flex: 1; display: flex; justify-content: flex-end; align-items: center; }
+    .detail-step-img {
+        width: 220px; height: 220px; object-fit: contain;
+        filter: drop-shadow(0 10px 30px rgba(0,0,0,0.5));
+    }
+
+
+    /*활동 안내*/
+    .activity-layout { display: flex; gap: 60px; align-items: flex-start; }
+    .activity-left { flex: 0 0 30%; position: sticky; top: 120px; }
+    .activity-title { font-size: 42px; font-weight: 800; line-height: 1.2; margin-bottom: 20px; color: white; letter-spacing: -1px; }
+    .activity-desc { font-size: 18px; color: #888; line-height: 1.6; word-break: keep-all; }
+
+    .activity-right { flex: 1; display: grid; grid-template-columns: repeat(2, 1fr); gap: 50px 30px; }
+    .week-item { border-left: 2px solid #333; padding-left: 20px; transition: 0.3s; }
+    .week-item:hover { border-left-color: #009490; }
+    .week-item h4 { font-size: 20px; font-weight: 700; margin-bottom: 8px; color: white; }
+    .week-item p { font-size: 16px; color: #666; font-weight: 500; }
+    .week-item.highlight h4 { color: #009490; } 
+
+
+    /*FAQ*/
+    .faq-list { display: flex; flex-direction: column; gap: 15px; }
+    .faq-item {
+        background-color: #1e1e1e; border-radius: 12px; overflow: hidden;
+        border: 1px solid #333; transition: 0.3s;
+    }
+    .faq-header {
+        padding: 25px; display: flex; justify-content: space-between; align-items: center;
+        cursor: pointer; font-size: 18px; font-weight: 700; color: white;
+    }
+    .faq-header:hover { background-color: #252525; color: #009490; }
+    .faq-icon { transition: transform 0.3s ease; font-size: 20px; color: #555; }
+    .faq-body {
+        max-height: 0; overflow: hidden; transition: max-height 0.3s cubic-bezier(0, 1, 0, 1);
+        background-color: #111; padding: 0 25px; color: #aaa; line-height: 1.6; border-top: 1px solid #222;
+    }
+    .faq-item.open { border-color: #009490; }
+    .faq-item.open .faq-icon { transform: rotate(180deg); color: #009490; }
+    .faq-item.open .faq-body { max-height: 200px; padding-bottom: 25px; padding-top: 25px;}
+
+
+    /*문의하기 & CTA*/
+    .inquiry-section {
+        width: 100%; max-width: 1200px; margin: 0 auto 100px;
+        border-radius: 24px; padding: 100px 40px; text-align: center;
+        position: relative; overflow: hidden; color: white;
+        background-image: url('Recruitment/Inquiry_background.png'); 
+        background-size: cover; background-position: center;
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+    .inquiry-section::before {
+        content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background-color: rgba(0,0,0,0.6); z-index: 1;
+    }
+    .inquiry-content { position: relative; z-index: 2; }
+    .inquiry-title { font-size: 36px; font-weight: 800; margin-bottom: 20px; }
+    .inquiry-text { font-size: 18px; color: rgba(255,255,255,0.9); margin-bottom: 40px; line-height: 1.6; }
+    
+    .instagram-btn {
+        background-color: transparent; border: 2px solid white; color: white;
+        padding: 15px 40px; border-radius: 50px; font-size: 16px; font-weight: 700;
+        display: inline-flex; align-items: center; gap: 10px; transition: 0.3s;
+    }
+    .instagram-btn:hover { background-color: white; color: #000; }
+
+    .bottom-cta {
+        width: 100%; padding: 150px 0; text-align: center;
+        position: relative; overflow: hidden;
+        background-image: url('Recruitment/Bottom_background.png');
+        background-size: cover; background-position: center;
+        margin-top: 50px;
+    }
+    .bottom-cta::before { display: none; }
+
+    .cta-content { position: relative; }
+    .cta-title { font-size: 52px; font-weight: 600; margin-bottom: 50px; color: rgb(255, 255, 255); letter-spacing: -0.5px; text-shadow: 0px 0px 30px  rgba(4, 30, 42, 0.5);}
+    
+    .cta-btn-large {
+        background-color: #009490; color: white;
+        padding: 24px 80px; 
+        border-radius: 8px;
+        font-size: 24px; font-weight: 800;
+        transition: 0.3s; display: inline-block;
+    }
+    .cta-btn-large:hover { transform: translateY(-5px) scale(1.05); background-color: #000000; }
+
+    footer { width: 100%; background-color: #1a1a1a; color: white; padding: 60px 5%; border-top: 1px solid #222; }
+    .footer-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 40px; }
+    .footer-left { flex: 1; min-width: 250px; }
+    .footer-logo { height: 30px; margin-bottom: 20px; opacity: 0.9; filter: brightness(0) invert(1); }
+    .footer-tagline { font-size: 24px; font-weight: 700; margin-bottom: 10px; color: #fff; }
+    .footer-sub { font-size: 14px; color: #888; margin-bottom: 40px; }
+    .copyright { font-size: 13px; color: #666; }
+    .footer-right { display: flex; gap: 60px; flex-wrap: wrap; }
+    .footer-column h4 { font-size: 14px; font-weight: 700; color: #ccc; margin-bottom: 20px; text-transform: uppercase; }
+    .footer-column p { font-size: 14px; color: #999; margin-bottom: 10px; }
+    .social-icons { display: flex; gap: 15px; margin-top: 20px; }
+    .social-icon { 
+        width: 24px; height: 24px; background: #333; border-radius: 4px; 
+        display: flex; align-items: center; justify-content: center; 
+        color: #aaa; transition: 0.3s; cursor: pointer;
+    }
+    .social-icon:hover { background: #555; color: white; }
+
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes initialZoom { from { transform: scale(1.1); } to { transform: scale(1); } }
+    @keyframes bounce { 0%, 100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, 10px); } }
+
+    @media (max-width: 768px) {
+        header { padding: 0 20px; }
+        .menu-toggle { display: block; }
+        .nav-container {
+            display: flex; position: absolute; top: 79px; left: 0; width: 100%;
+            background: #050505; flex-direction: column; align-items: flex-start;
+            gap: 0; overflow: hidden; max-height: 0; opacity: 0;
+            transition: max-height 0.4s, opacity 0.4s; border-bottom: 1px solid #333;
+        }
+        .nav-container.active { max-height: 500px; opacity: 1; padding-bottom: 20px; }
+        .nav-menu { flex-direction: column; width: 100%; gap: 0; margin: 0; }
+        .nav-item { width: 100%; padding: 20px 24px; font-size: 18px; border-bottom: 1px solid #222; }
+        .apply-btn { margin: 20px 24px; width: calc(100% - 48px); text-align: center; display: block; }
+        
+        main { gap: 100px; }
+        .recruit-hero { height: 500px; margin-top: 0; padding-top: 0; }
+        .hero-title-large { font-size: 42px; }
+        .hero-logo-large { height: 40px; }
+        
+        .ideal-grid { grid-template-columns: 1fr; }
+        .flip-card { aspect-ratio: auto; height: 260px; }
+
+        .timeline-nav { 
+            padding: 0 10px; justify-content: space-between; gap: 0; 
+            margin-bottom: 40px;
+        }
+        .timeline-step-btn { min-width: 60px; width: 25%; }
+        .step-circle { 
+            width: 50px; height: 50px; font-size: 16px; 
+            margin-bottom: 12px;
+        }
+        .step-label { font-size: 12px; }
+        
+        .timeline-detail-box { 
+            flex-direction: column; padding: 40px 20px; 
+            text-align: center; gap: 30px; 
+        }
+        .detail-left { text-align: center; }
+        .detail-title { font-size: 28px; }
+        .detail-right { justify-content: center; }
+        .detail-step-img { width: 150px; height: 150px; }
+        
+        .activity-layout { flex-direction: column; gap: 30px; }
+        .activity-left { position: static; margin-bottom: 20px; }
+        .activity-right { grid-template-columns: 1fr; width: 100%; gap: 30px; }
+        
+        .inquiry-title, .cta-title { font-size: 28px; }
+        .footer-content { flex-direction: column; gap: 40px; }
+    }
+</style>
+</head>
+<body>
+
+    <header>
+        <a href="index.html"><img src="SUMM&IT logo.png" alt="SUMM&IT" class="logo-img"></a>
+        <div class="menu-toggle" id="mobile-menu-btn">☰</div>
+        <div class="nav-container" id="nav-container">
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-item">써밋 소개</a></li>
+                <li><a href="Projects.html" class="nav-item">프로젝트</a></li>
+                <li><a href="TeamCulture.html" class="nav-item">팀 문화</a></li>
+                <li><a href="Recruitment.html" class="nav-item active-page">모집 안내</a></li>
+            </ul>
+            <button class="apply-btn" onclick="location.href='Apply.html'">지원하기</button>
+        </div>
+    </header>
+
+    <main>
+        <!--히어로 섹션 -->
+        <section class="recruit-hero">
+            <div class="hero-bg-container" id="hero-bg">
+                <img src="Recruitment/Recruitment_hero.png" alt="Team" class="hero-bg-img">
+            </div>
+            <div class="hero-content">
+                <img src="SUMM&IT logo.png" alt="SUMM&IT" class="hero-logo-large">
+                <h1 class="hero-title-large">RECRUITING 33rd</h1>
+            </div>
+            <div class="scroll-indicator">SCROLL DOWN</div>
+        </section>
+
+        <!-- 인재상 -->
+        <section class="section-container">
+            <h2 class="section-title scroll-reveal">써밋에서 이런 분을 찾아요</h2>
+            <div class="ideal-grid">
+                <div class="flip-card scroll-reveal delay-100">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <div class="ideal-text">화/목 19시<br>정기 세션에<br>참여 가능하신 분</div>
+                            <div class="ideal-icon-wrapper"><img src="Recruitment/Ideal1.png" class="ideal-icon" alt="icon"></div>
+                        </div>
+                        <div class="flip-card-back">
+                            <div class="ideal-desc">매주 화요일과 목요일 저녁 7시에 진행되는 정기 세션은 써밋 활동의 핵심입니다. 성실한 참여를 통해 팀원들과 호흡을 맞추고 프로젝트를 완수할 수 있는 분을 찾습니다.</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flip-card scroll-reveal delay-100">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <div class="ideal-text">연속 2학기<br>활동하실 수<br>있는 분</div>
+                            <div class="ideal-icon-wrapper"><img src="Recruitment/Ideal2.png" class="ideal-icon" alt="icon"></div>
+                        </div>
+                        <div class="flip-card-back">
+                            <div class="ideal-desc">써밋은 1년(2학기) 활동을 원칙으로 합니다. 긴 호흡으로 프로젝트를 깊이 있게 경험하고, 학회의 커리큘럼을 온전히 수료하며 함께 성장할 수 있는 분을 기다립니다.</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flip-card scroll-reveal delay-100">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <div class="ideal-text">마케팅에<br>관심이<br>있는 분</div>
+                            <div class="ideal-icon-wrapper"><img src="Recruitment/Ideal3.png" class="ideal-icon" alt="icon"></div>
+                        </div>
+                        <div class="flip-card-back">
+                            <div class="ideal-desc">전공은 무관합니다. 마케팅에 대한 열정과 호기심을 가지고 세상을 바라보며, 자신만의 인사이트를 키워나가고 싶은 분이라면 누구나 환영합니다.</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flip-card scroll-reveal delay-200">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <div class="ideal-text">기획서를<br>작성해볼 기회를<br>원하는 분</div>
+                            <div class="ideal-icon-wrapper"><img src="Recruitment/Ideal4.png" class="ideal-icon" alt="icon"></div>
+                        </div>
+                        <div class="flip-card-back">
+                            <div class="ideal-desc">아이디어를 논리적인 기획서로 구체화하는 과정을 경험합니다. 문제 정의부터 솔루션 도출까지, 실전 마케팅 기획의 A to Z를 배우고 실행해볼 수 있습니다.</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flip-card scroll-reveal delay-200">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <div class="ideal-text">실무진의<br>피드백을<br>받아보고 싶었던 분</div>
+                            <div class="ideal-icon-wrapper"><img src="Recruitment/Ideal5.png" class="ideal-icon" alt="icon"></div>
+                        </div>
+                        <div class="flip-card-back">
+                            <div class="ideal-desc">현업 마케터 선배님들의 멘토링과 피드백을 통해 학교에서는 배울 수 없는 실무 감각을 익히고, 자신의 기획을 한 단계 더 발전시킬 수 있습니다.</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flip-card scroll-reveal delay-200">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <div class="ideal-text">같은 진로의<br>학우와 교류하고<br>싶은 분</div>
+                            <div class="ideal-icon-wrapper"><img src="Recruitment/Ideal6.png" class="ideal-icon" alt="icon"></div>
+                        </div>
+                        <div class="flip-card-back">
+                            <div class="ideal-desc">같은 꿈을 꾸는 열정적인 동료들과 함께 치열하게 고민하고 성장하는 경험은 써밋이 드리는 가장 큰 선물입니다. 끈끈한 네트워크를 만들어보세요.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 모집 일정 -->
+        <section class="section-container">
+            <h2 class="section-title scroll-reveal">모집 일정</h2>
+            
+            <div class="timeline-container scroll-reveal delay-100">
+                <!-- 상단 타임라인 네비게이션 -->
+                <div class="timeline-nav">
+                    <div class="timeline-line-bg"></div>
+                    
+                    <button class="timeline-step-btn active" onclick="showProcess(0)">
+                        <div class="step-circle">01</div>
+                        <div class="step-label">서류 접수</div>
+                    </button>
+                    <button class="timeline-step-btn" onclick="showProcess(1)">
+                        <div class="step-circle">02</div>
+                        <div class="step-label">서류 발표</div>
+                    </button>
+                    <button class="timeline-step-btn" onclick="showProcess(2)">
+                        <div class="step-circle">03</div>
+                        <div class="step-label">직무 인터뷰</div>
+                    </button>
+                    <button class="timeline-step-btn" onclick="showProcess(3)">
+                        <div class="step-circle">04</div>
+                        <div class="step-label">최종 합격</div>
+                    </button>
+                </div>
+
+                <div class="timeline-detail-box" id="process-display">
+                </div>
+            </div>
+        </section>
+
+        <!--활동 안내 -->
+        <section class="section-container">
+            <div class="activity-layout">
+                <div class="activity-left scroll-reveal">
+                    <h2 class="activity-title">활동 안내</h2>
+                    <p class="activity-desc">
+                        8주간 팀빌딩부터 최종 발표까지 이어지며,<br>
+                        전 기수가 함께 참여하는 네트워킹 파티가 열립니다.<br>
+                        써밋에 합류해 더 넓고 다양한 경험을 만들어보세요.
+                    </p>
+                </div>
+                
+                <div class="activity-right scroll-reveal delay-100">
+                    <div class="week-item"><h4>OT</h4><p>신입부원 환영회</p></div>
+                    <div class="week-item"><h4>MT</h4><p>2026.02.07</p></div>
+                    <div class="week-item"><h4>Pre 세션</h4><p>기획서 & 디자인 강의</p></div>
+                    <div class="week-item"><h4>후반기 IBS 산학</h4><p>학회원 모두가 참여하는 학회 연합 내 산학협력</p></div>
+                    <div class="week-item"><h4>전반기 산학</h4><p>학회 내부에서 진행하는 산학협력</p></div>
+                    <div class="week-item"><h4>종강총회</h4><p>활동 마무리</p></div>
+                    <div class="week-item"><h4>전반기 IBS 산학(선택)</h4><p>기존 기수가 참여할 수 있는 학회 연합 내 산학협력</p></div>
+                    <div class="week-item"><h4>방학 산학협력(선택)</h4><p>방학 동안 진행하는 학회 연합 내 산학협력</p></div>
+                    <div class="week-item highlight"><h4>중간고사</h4><p>2026.01.31</p></div>
+                </div>
+            </div>
+        </section>
+
+        <!--FAQ -->
+        <section class="section-container">
+            <h2 class="section-title scroll-reveal">FAQ</h2>
+            <div class="faq-list scroll-reveal delay-100">
+                <div class="faq-item">
+                    <div class="faq-header">Q. 고학년/졸업유예면 합격 가능성이 낮아지나요?<span class="faq-icon">▼</span></div>
+                    <div class="faq-body">SUMM&IT은 전공 무관, 학년 무관입니다!<br>학기 수와 상관없이 마케팅에 열정을 가지고 있고, 두 학기(26-1, 26-2학기) 동안 활동에 성실히 참여할 수 있는 서강인이라면 누구든지 지원 가능합니다. 실제로 7,8학기 학우들이 신입부원으로 뽑혔었고, 다양한 학년/학번의 학회원들이 함께하고 있으니 부담없이 지원해주세요!</div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-header">Q. 산학협력이 최소 2번이면 학기 병행에 어려움은 없나요?<span class="faq-icon">▼</span></div>
+                    <div class="faq-body">산학 기간에는 정규 세션 시간에 팀별 회의가 진행되므로 학회원들과 별도로 시간을 조정해 회의를 잡지 않아도 충분히 의견을 나눌 수 있어요<br>또한 산학협력 발표 일정을 마치면 중간/기말 2주 전부터는 시험 공부를 위해 휴회를 합니다. 실제로 학교를 다니거나 인턴을 병행하면서도 무사히 수료한 학회원들이 많으니 열정만 있다면 병행에 큰 어려움은 없어요!</div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-header">Q. 기획서를 써본 경험이 없는데, 적응할 수 있을까요?<span class="faq-icon">▼</span></div>
+                    <div class="faq-body">SUMM&IT은 Pre세션을 통해 실전에 투입되기 전에 기획서 작성을 위한 기본적인 교육을 진행합니다. 해당 세션에서는 기획서를 처음 만드는 초보자도 쉽게 이해할 수 있도록 설명하고, 실습을 통해 스스로의 스킬로 만들 수 있도록 돕습니다.<br> 산학 팀 또한 각자의 능력치와 포지션을 고려해 구성하니 학회는 배우는 곳인 만큼 너무 걱정하지 말고 함께해요!</div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-header">Q. 포트폴리오 제출은 필수인가요?<span class="faq-icon">▼</span></div>
+                    <div class="faq-body">선택 사항입니다. 하지만 본인의 역량을 보여줄 수 있는 자료가 있다면 제출해주시는 것을 적극 권장합니다.</div>
+                </div>
+            </div>
+        </section>
+
+        <!--문의하기 섹션 -->
+        <section class="inquiry-section scroll-reveal">
+            <div class="inquiry-content">
+                <h3 class="inquiry-title">문의사항</h3>
+                <p class="inquiry-text">
+                    리쿠르팅 문의는 인스타그램 DM 혹은 이메일로 부탁드립니다.<br>
+                    sogangsummit@gmail.com
+                </p>
+                <a href="https://www.instagram.com/sogang_summit/?hl=ko" target="_blank" class="instagram-btn">
+                    <i class="fab fa-instagram"></i> 인스타그램 문의하기
+                </a>
+            </div>
+        </section>
+
+        <!--CTA -->
+        <section class="bottom-cta scroll-reveal">
+            <div class="cta-content">
+                <h2 class="cta-title">지금 바로 33기에 지원하세요!</h2>
+                <a href="Apply.html" class="cta-btn-large">지원하기</a>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-left">
+                <img src="SUMM&IT logo.png" alt="Logo" class="footer-logo">
+                <div class="footer-tagline">서강대학교 실전 마케팅 학회</div>
+                <div class="footer-sub">실전 압축 경험으로 마케팅의 정상에 도전하다!</div>
+                <div class="copyright">Copyright © 2025 SUMM&IT. All Rights Reserved.</div>
+            </div>
+            <div class="footer-right">
+                <div class="footer-column">
+                    <h4>CONTACT US</h4>
+                    <p>sogangsummit@gmil.com</p>
+                    <p>학회장 010-9969-3078</p>
+                    <div class="social-icons">
+                        <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h4>Location</h4>
+                    <p>서울특별시 마포구 백범로 35</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+<script>
+    document.getElementById('mobile-menu-btn').addEventListener('click', () => {
+        document.getElementById('nav-container').classList.toggle('active');
+    });
+    document.querySelectorAll('.nav-item').forEach(link => {
+        link.addEventListener('click', () => {
+            document.getElementById('nav-container').classList.remove('active');
+        });
+    });
+
+    // 히어로 섹션 스크롤 효과
+    window.addEventListener('scroll', () => {
+        const scrollY = window.scrollY;
+        const heroBg = document.querySelector('.hero-bg-img');
+        const heroContent = document.querySelector('.hero-content');
+        
+        if (heroBg) {
+            heroBg.style.transform = `translateY(${scrollY * 0.5}px)`;
+        }
+        if (heroContent) {
+            heroContent.style.opacity = 1 - (scrollY / 500);
+            heroContent.style.transform = `translateY(${scrollY * 0.2}px)`;
+        }
+    });
+
+    // 모집 일정 내용
+    const processData = [
+        { title: "서류 접수", date: "~ 2.14 18:00", desc: "지원하기 란을 통해 지원서를 작성하여 제출해주세요.<br>마감 시간에는 접속자가 몰릴 수 있으니 미리 제출을 권장합니다.", img: "Recruitment/Steps1.png" },
+        { title: "서류 발표", date: "2.20", desc: "지원서 내용을 바탕으로 1차 합격자를 선발합니다.<br>합격 여부는 문자 및 메일로 개별 통보해 드립니다.", img: "Recruitment/Steps2.png" },
+        { title: "면접 전형", date: "2.24 ~ 2.28", desc: "일대다 면접으로 진행되며, 서류를 바탕으로 마케팅에 대한 관심과 열정을 파악하는 목적으로 진행됩니다.<br> 대면으로 20분간 진행되며 게스티메이션 질문은 존재하지 않습니다.", img: "Recruitment/Steps3.png" },
+        { title: "최종 합격", date: "3.2", desc: "최종 합격하신 분들께는 개별 연락을 드리며,<br>오리엔테이션 일정과 향후 활동 계획을 안내해 드립니다.", img: "Recruitment/Steps4.png" }
+    ];
+
+    function showProcess(index) {
+        document.querySelectorAll('.timeline-step-btn').forEach((btn, i) => {
+            if (i === index) btn.classList.add('active');
+            else btn.classList.remove('active');
+        });
+        const display = document.getElementById('process-display');
+        display.style.animation = 'none';
+        display.offsetHeight;
+        display.style.animation = 'fadeIn 0.4s ease-out';
+
+        const data = processData[index];
+        display.innerHTML = `
+            <div class="detail-left">
+                <h3 class="detail-title">${data.title}</h3>
+                <span class="detail-date">${data.date}</span>
+                <p class="detail-desc">${data.desc}</p>
+            </div>
+            <div class="detail-right">
+                <img src="${data.img}" alt="${data.title}" class="detail-step-img">
+            </div>
+        `;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        showProcess(0);
+    });
+
+    // FAQ 아코디언
+    const faqs = document.querySelectorAll('.faq-header');
+    faqs.forEach(header => {
+        header.addEventListener('click', () => {
+            const item = header.parentElement;
+            item.classList.toggle('open');
+        });
+    });
+
+    // 스크롤 애니메이션
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.scroll-reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

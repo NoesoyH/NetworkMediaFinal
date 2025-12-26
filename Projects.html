@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SUMM&IT</title>
+
+<link rel="icon" type="image/x-icon" href="SUMMIT_Fabicon.ico">
+<link rel="shortcut icon" type="image/x-icon" href="SUMMIT_Fabicon.ico">
+
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+    html { scroll-behavior: smooth; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { 
+        font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+        background-color: #f9f9f9; 
+        color: #333;
+        overflow-x: hidden; 
+    }
+    a { text-decoration: none; color: inherit; }
+    ul { list-style: none; }
+    button { font-family: inherit; cursor: pointer; }
+
+    header {
+        position: fixed; top: 0; left: 0; width: 100%;
+        background-color: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid #eee;
+        z-index: 1000; height: 80px;
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 0 5%;
+    }
+
+    .logo-img { height: 24px; width: auto; object-fit: contain; display: block; }
+
+    .nav-container {
+        display: flex;
+        align-items: center;
+        flex: 1; 
+    }
+
+    .nav-menu { 
+        display: flex; 
+        gap: 40px; 
+        font-size: 16px; 
+        font-weight: 700; 
+        margin: 0 auto; 
+    }
+    
+    .nav-item { cursor: pointer; transition: color 0.3s ease; color: #000; display: block; }
+    .nav-menu:hover .nav-item { color: #ccc; }
+    .nav-menu .nav-item:hover { color: #000; }
+    .nav-item.active-page { color: #009490 !important; }
+
+    .apply-btn {
+        background-color: #009490; color: white;
+        padding: 13px 32px; 
+        border-radius: 8px;
+        font-weight: 700; font-size: 15px; border: none;
+        cursor: pointer; transition: background-color 0.3s ease; white-space: nowrap;
+    }
+    .apply-btn:hover { background-color: #007570; }
+
+    .menu-toggle { display: none; font-size: 24px; cursor: pointer; color: #333; z-index: 1100; }
+
+    main {
+        display: flex; flex-direction: column; align-items: center;
+        padding-top: 80px;
+        padding-bottom: 100px;
+        width: 100%;
+        min-height: 100vh;
+    }
+
+    /*히어로 섹션*/
+    .hero-container {
+        width: 100%;
+        display: flex; flex-direction: column; align-items: center;
+        margin-bottom: 60px;
+    }
+
+    .hero-image-box {
+        width: 100%; height: 400px; overflow: hidden;
+        position: relative;
+    }
+
+    .hero-img {
+        width: 100%; height: 100%; object-fit: cover;
+        animation: scaleIn 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        transform: scale(1.1);
+    }
+
+    .hero-text-box {
+        width: 90%; max-width: 1000px;
+        padding: 60px 0 20px 0; 
+        text-align: center;
+        margin: 0 auto;
+    }
+
+    .hero-title {
+        font-size: 48px; font-weight: 800; color: #111; margin-bottom: 24px; line-height: 1.2;
+        opacity: 0; transform: translateY(30px);
+        animation: fadeInUp 0.8s ease-out 0.3s forwards;
+    }
+
+    .hero-desc {
+        font-size: 20px; line-height: 1.6; color: #555; font-weight: 400; max-width: 800px; word-break: keep-all;
+        margin: 0 auto;
+        opacity: 0; transform: translateY(30px);
+        animation: fadeInUp 0.8s ease-out 0.5s forwards;
+    }
+
+    @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+    @keyframes scaleIn { to { transform: scale(1); } }
+
+
+    /* 카테고리 필터 */
+    .category-nav {
+        width: 100%; 
+        max-width: 100%; 
+        margin-bottom: 50px;
+        display: flex; 
+        justify-content: center; 
+        gap: 40px; 
+        padding-bottom: 0;
+    }
+
+    .category-btn {
+        padding: 10px 0; border: none; background: transparent; 
+        color: #999; font-size: 18px; font-weight: 600;
+        cursor: pointer; position: relative; transition: all 0.3s ease;
+    }
+    .category-btn:hover { color: #333; }
+    .category-btn.active { color: #111; font-weight: 800; }
+    .category-btn.active::after {
+        content: ''; position: absolute; bottom: 0; left: 0;
+        width: 100%; height: 3px; background-color: #111; 
+    }
+
+
+    /*프로젝트 갤러리*/
+    .gallery-container { width: 90%; max-width: 1200px; }
+
+    .project-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+        width: 100%;
+        min-height: 300px;
+    }
+
+    .project-card {
+        position: relative; display: block; width: 100%; aspect-ratio: 4 / 3;
+        border-radius: 16px; overflow: hidden; cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease;
+        background-color: #eee;
+        animation: fadeIn 0.5s ease-out;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .project-card:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0,0,0,0.15); }
+
+    .project-thumb { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+    .project-card:hover .project-thumb { transform: scale(1.05); }
+
+    .project-overlay {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background-color: rgba(0, 0, 0, 0.7); opacity: 0;
+        transition: opacity 0.3s ease;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        z-index: 2; padding: 20px; text-align: center;
+    }
+    .project-card:hover .project-overlay { opacity: 1; }
+
+    .project-hover-logo {
+        max-width: 70%;
+        max-height: 50%;
+        object-fit: contain;
+        transform: translateY(20px); 
+        transition: transform 0.3s ease;
+        filter: brightness(0) invert(1);
+    }
+    .project-card:hover .project-hover-logo { transform: translateY(0); }
+    
+
+    #load-more-trigger {
+        width: 100%; height: 100px; display: flex; justify-content: center; align-items: center; margin-top: 30px; 
+    }
+    .loading-spinner {
+        border: 3px solid #f3f3f3; border-top: 3px solid #009490;
+        border-radius: 50%; width: 30px; height: 30px;
+        animation: spin 1s linear infinite; display: none;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+
+    /*상세 모달*/
+    .project-modal {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background-color: white; z-index: 2000; overflow-y: auto;
+        display: none; opacity: 0; transition: opacity 0.3s ease;
+    }
+    .project-modal.active { display: block; opacity: 1; }
+
+    .modal-close-btn {
+        position: fixed; top: 30px; right: 30px;
+        background: white; border: 1px solid #eee;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        width: 50px; height: 50px; border-radius: 50%;
+        font-size: 24px; display: flex; align-items: center; justify-content: center;
+        cursor: pointer; z-index: 2001; transition: 0.2s;
+    }
+    .modal-close-btn:hover { background: #f9f9f9; transform: rotate(90deg); }
+
+    .modal-container { width: 100%; padding-bottom: 100px; }
+
+    .modal-hero { width: 100%; height: 60vh; overflow: hidden; background-color: #f0f0f0; }
+    .modal-hero-img { width: 100%; height: 100%; object-fit: cover; }
+
+    .modal-body {
+        width: 90%; max-width: 1200px; margin: 80px auto 0;
+        display: flex; gap: 80px; align-items: flex-start;
+    }
+
+    /* 왼쪽 패널 (설명 + 주제) */
+    .modal-body-left { flex: 2; }
+    .modal-title { font-size: 42px; font-weight: 800; color: #111; margin-bottom: 20px; line-height: 1.3; }
+    .modal-desc { 
+        font-size: 18px; color: #444; line-height: 1.8; 
+        word-break: keep-all; white-space: pre-line;
+        margin-bottom: 40px; 
+    }
+    
+    .left-topic-section {
+        margin-top: 30px;
+        padding-top: 30px;
+        border-top: 1px solid #eee;
+    }
+    .topic-label {
+        font-size: 20px; font-weight: 800; color: #009490; margin-bottom: 15px; display: block;
+    }
+    .topic-content {
+        font-size: 16px; color: #333; line-height: 2.0; 
+        white-space: pre-line;
+    }
+
+    /* 오른쪽 패널 (일정 + 수상 결과) */
+    .modal-body-right {
+        flex: 1; 
+        display: flex; 
+        flex-direction: column; 
+        gap: 60px; 
+        padding-top: 10px;
+    }
+
+    .info-section { display: flex; flex-direction: column; gap: 20px; }
+
+    .info-title {
+        font-size: 18px; font-weight: 800; color: #111; 
+        border-bottom: 2px solid #009490; 
+        padding-bottom: 8px; display: inline-block; width: 100%;
+        margin-bottom: 5px;
+    }
+    
+    .simple-list-item {
+        font-size: 15px; color: #444; 
+        line-height: 2.2; 
+        margin-bottom: 8px; 
+    }
+    
+    .bold-key { 
+        font-weight: 700; color: #000; 
+        margin-right: 12px; 
+    }
+
+    .modal-extra-images {
+        width: 90%; max-width: 1200px; margin: 100px auto 0;
+        display: flex; flex-direction: column; gap: 40px;
+    }
+    .detail-image { width: 100%; height: auto; border-radius: 12px; }
+
+    footer { width: 100%; background-color: #1a1a1a; color: white; padding: 60px 5%; }
+    .footer-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 40px; }
+    .footer-left { flex: 1; min-width: 250px; }
+    .footer-logo { height: 30px; margin-bottom: 20px; opacity: 0.9; filter: brightness(0) invert(1); }
+    .footer-tagline { font-size: 24px; font-weight: 700; margin-bottom: 10px; }
+    .footer-sub { font-size: 14px; color: #888; margin-bottom: 40px; }
+    .copyright { font-size: 13px; color: #666; }
+    .footer-right { display: flex; gap: 60px; flex-wrap: wrap; }
+    .footer-column h4 { font-size: 14px; font-weight: 700; text-transform: uppercase; margin-bottom: 20px; color: #ccc; }
+    .footer-column p { font-size: 14px; color: #999; margin-bottom: 10px; line-height: 1.6; }
+    
+    .social-icons { display: flex; gap: 15px; margin-top: 20px; }
+    .social-icon { 
+        width: 36px; height: 36px; 
+        background: #333; 
+        border-radius: 4px; 
+        display: flex; align-items: center; justify-content: center; 
+        cursor: pointer; transition: 0.3s;
+        color: #aaa; font-size: 18px;
+    }
+    .social-icon:hover { background: #555; color: white; }
+
+
+    @media (max-width: 1024px) {
+        .project-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    
+    @media (max-width: 768px) {
+        header { padding: 0 20px; justify-content: space-between; }
+        .logo-img { order: 0; }
+        .menu-toggle { display: block; order: 1; margin-left: auto; }
+        
+        .nav-container {
+            display: flex; 
+            position: absolute;
+            top: 79px; 
+            left: 0;
+            width: 100%;
+            background: white;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0;
+            overflow: hidden;
+            max-height: 0;
+            opacity: 0;
+            transition: max-height 0.4s ease-in-out, opacity 0.4s ease-in-out;
+            border-bottom: 1px solid #eee;
+        }
+
+        .nav-container.active {
+            max-height: 500px; 
+            opacity: 1;
+            padding-bottom: 20px;
+        }
+
+        .nav-menu {
+            flex-direction: column;
+            width: 100%;
+            gap: 0;
+            margin: 0; 
+        }
+
+        .nav-item {
+            width: 100%;
+            padding: 20px 24px;
+            font-size: 18px;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        
+        .apply-btn {
+            margin: 20px 24px;
+            width: calc(100% - 48px);
+            text-align: center;
+            display: block; 
+        }
+        
+        main { padding-top: 80px; }
+        .hero-image-box { height: 300px; } 
+        .hero-title { font-size: 32px; }
+        .project-grid { grid-template-columns: 1fr; }
+        
+        .modal-hero { height: 40vh; }
+        .modal-body { flex-direction: column; gap: 40px; margin-top: 40px; }
+        .modal-title { font-size: 32px; }
+        .modal-body-right { width: 100%; border-top: 1px solid #eee; padding-top: 30px; }
+        
+        .footer-content { flex-direction: column; gap: 40px; }
+        .footer-right { flex-direction: column; gap: 30px; }
+    }
+</style>
+</head>
+<body>
+
+    <header>
+        <a href="index.html"><img src="SUMM&IT logo.png" alt="SUMM&IT" class="logo-img"></a>
+        <div class="menu-toggle" id="mobile-menu-btn">☰</div>
+        <div class="nav-container" id="nav-container">
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-item">써밋 소개</a></li>
+                <li><a href="Projects.html" class="nav-item active-page">프로젝트</a></li>
+                <li><a href="TeamCulture.html" class="nav-item">팀 문화</a></li>
+                <li><a href="Recruitment.html" class="nav-item">모집 안내</a></li>
+            </ul>
+            <button class="apply-btn" onclick="location.href='Apply.html'">지원하기</button>
+        </div>
+    </header>
+
+    <main>
+        <div class="hero-container">
+            <div class="hero-image-box">
+                <img src="Projects/Projects_hero.jpg" alt="Projects" class="hero-img">
+            </div>
+            <div class="hero-text-box">
+                <h1 class="hero-title">Our Projects</h1>
+                <p class="hero-desc">
+                    써밋 학회원들이 치열하게 고민하고 만들어낸<br>
+                    다양한 분야의 프로젝트 결과물들을 소개합니다.
+                </p>
+            </div>
+        </div>
+
+        <section class="gallery-container">
+            <div class="category-nav">
+                <button class="category-btn active" data-filter="all">All</button>
+                <button class="category-btn" data-filter="25-2">25-2</button>
+                <button class="category-btn" data-filter="25-1">25-1</button>
+                <button class="category-btn" data-filter="24-2">24-2</button>
+            </div>
+
+            <div class="project-grid" id="project-grid">
+            </div>
+            
+            <div id="load-more-trigger">
+                <div class="loading-spinner" id="loading-spinner"></div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-left">
+                <img src="SUMM&IT logo.png" alt="Logo" class="footer-logo">
+                <div class="footer-tagline">서강대학교 실전 마케팅 학회</div>
+                <div class="footer-sub">실전 압축 경험으로 마케팅의 정상에 도전하다!</div>
+                <div class="copyright">Copyright © 2025 SUMM&IT. All Rights Reserved.</div>
+            </div>
+            <div class="footer-right">
+                <div class="footer-column">
+                    <h4>CONTACT US</h4>
+                    <p>sogangsummit@gmil.com</p>
+                    <p>학회장 010-9969-3078</p>
+                    <div class="social-icons">
+                        <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h4>Location</h4>
+                    <p>서울특별시 마포구 백범로 35</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 상세 모달 -->
+    <div class="project-modal" id="project-modal">
+        <button class="modal-close-btn" id="modal-close-btn">✕</button>
+        
+        <div class="modal-container">
+            <div class="modal-hero">
+                <img id="modal-hero-img" class="modal-hero-img" src="" alt="">
+            </div>
+
+            <div class="modal-body">
+                <!-- 좌측: 설명 + 주제 -->
+                <div class="modal-body-left">
+                    <h2 class="modal-title" id="modal-title"></h2>
+                    <p class="modal-desc" id="modal-desc"></p>
+                    
+                    <div class="left-topic-section" id="left-topic-section">
+                        <span class="topic-label">Project Topic</span>
+                        <p class="topic-content" id="modal-topics-left"></p>
+                    </div>
+                </div>
+
+                <!-- 우측: 정보 리스트 (일정, 수상 결과) -->
+                <div class="modal-body-right" id="modal-right-content">
+                </div>
+            </div>
+
+            <div class="modal-extra-images" id="modal-images-container"></div>
+        </div>
+    </div>
+
+<script>
+    document.getElementById('mobile-menu-btn').addEventListener('click', () => {
+        document.getElementById('nav-container').classList.toggle('active');
+    });
+
+    document.querySelectorAll('.nav-item').forEach(link => {
+        link.addEventListener('click', () => {
+            document.getElementById('nav-container').classList.remove('active');
+        });
+    });
+
+    // 프로젝트 내용
+    const allProjects = [
+        
+        {
+            id: 1, 
+            category: '25-2', 
+            title: "KFC", 
+            desc: "KFC에 대한 관심과 인지도를 끌어올릴 마케팅 전략 제안 프로젝트입니다.",
+            thumb: "Projects/KFC3.png", 
+            logoImg: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/KFC_logo.svg/2560px-KFC_logo.svg.png",
+            schedule: "-킥오프: 11.11\n- 서면 질문 : 11.13\n- 중간 제출 : 11.25\n- 중간 온라인 피드백 : 12.01\n- 최종 제출 : 12.04\n- 최종 발표 : 12.08",
+            topics: "-주제 1: KFC 전용 혜택 플랫폼 설계와 커뮤니케이션\n-주제 2: Modern Social 커뮤니케이션 플랜 \n-주제 3: Modern Merch/ IP Collaboration 캠페인 IDEATION",
+            results: "-대상: SUMM&IT 2팀 \n최우수상 : SUMM&IT 1팀\n 우수상 : SUMM&IT 3팀, SUMM&IT 4팀",
+            detailImages: ["Projects/KFC1.png","Projects/KFC2.png","Projects/KFC3.png"]
+        },
+        {
+            id: 2, 
+            category: '25-2', 
+            title: "Sulwhasoo", 
+            desc: "설화수를 소비자에게 각인시키기 위한 브랜드 팝업스토어 공간을 계획, 제안하는 오프라인 마케팅 전략 프로젝트입니다.",
+            thumb: "Projects/Sulwhasoo1.png", 
+            logoImg: "https://upload.wikimedia.org/wikipedia/commons/f/f0/Sulwhasoo-logo-png.png",
+            schedule: "-킥오프: 11.10\n- 1차 서면 질문 : 11.12 \n- 1차 온라인 피드백 : 11.19 \n- 2차 대면 피드백 : 11.25 \n- 최종 제출 : 12.02 \n- 최종 발표 : 12.04 ​",
+            topics: " 주제 : 깊이 있는 럭셔리 고객 경험의 브랜드 팝업 제안",
+            results: "장려상 : 써밋 1팀",
+            detailImages: ["Projects/Sulwhasoo1.png","Projects/Sulwhasoo2.png","Projects/Sulwhasoo3.png"]
+        },
+                {
+            id: 3, 
+            category: '25-2', 
+            title: "MUSINSA", 
+            desc: "성수 지역 상권 활성화 및 외국인 방문객 확대를 위한 무신사의 온/오프라인 통합 마케팅 전략 제안 프로젝트입니다.",
+            thumb: "Projects/Musinsa3.jpg", 
+            logoImg: "https://image.msscdn.net/display/images/2024/07/19/e6d1f7cb7b5544929ac6dcdf92c5b821.png",
+            schedule: "-킥오프: 09.09\n-팀별 서면 질문: 팀별 자율 질문(~09.23)\n-교수님 피드백: 09.23\n-중간 제출: 09.25\n-사측 피드백: 09.29\n-최종 제출: 10.01\n-최종 PT: 10.02",
+            topics: "-주제 1: 성수 지역과 함께 발전할 수 있는 무신사의 비즈니스 전략\n-주제 2: 무신사 오프라인 스토어 방문 외국인 매출 확대 전략",
+            results: "-최우수상: [주제 1] 1팀, [주제2] 5팀\n-우수상: [주제1] 3팀, [주제1] 4팀, [주제2] 2팀",
+            detailImages: ["Projects/Musinsa1.jpg","Projects/Musinsa2.jpg","Projects/Musinsa3.jpg","Projects/Musinsa4.jpg","Projects/Musinsa5.jpg","Projects/Musinsa6.jpg"]
+        },
+        {
+            id: 4, 
+            category: '25-1', 
+            title: "동원 F&B", 
+            desc: "국내 펫시장 내 동원 F&B 브랜드 인지도를 분석해 포지셔닝/커뮤니케이션 전략을 제안하는 프로젝트입니다.",
+            thumb: "Projects/Dongwon1.png", 
+            logoImg: "https://pds.saramin.co.kr/company/logo/202312/12/s5j0y6_cmw4-1oqmsxp_logo.png",
+            schedule: "킥오프 : 05.12\n- 1차 서면 질문 : 05.14\n- 1차 중간 제출 : 05.21\n- 1차 온라인 피드백 : 05.22\n- 2차 중간 제출 : 05.27\n- 2차 온라인 피드백 : 05.28\n- 최종 제출 : 06.04\n- 발표 팀 선정 : 06.06\n- 최종 발표 : 06.09",
+            topics: "[아르르(Arrr)]\n주제1) 국내 펫 시장 내 브랜드 인식 조사를 통한 전략적 방향성 제시 및 해외 수출 가능성 분석\n주제2) 프리미엄 펫푸드 브랜드 포지셔닝 전략 제안 (TOM 달성)\n​\n[뉴트리플랜(Nutri Plan)]\n주제1) 반려묘 습식시장 4P 및 브랜딩 전략 도출\n주제2) 신제품 '소프트뮨' 타겟 소비자 및 커뮤니케이션 전략 제안",
+            results: "-대상: [아르르 주제2] 2팀\n-최우수상: [뉴트리플랜 주제1] 3팀",
+            detailImages: ["Projects/Dongwon1.png","Projects/Dongwon2.png","Projects/Dongwon3.png","Projects/Dongwon4.png","Projects/Dongwon5.png","Projects/Dongwon6.png"]
+        },
+        {
+            id: 5, 
+            category: '25-1', 
+            title: "GS칼텍스 에너지플러스", 
+            desc: "에너지플러스 앱 활성화 및 고객 경험 개선 프로젝트입니다.",
+            thumb: "Projects/GSCaltex1.png", 
+            logoImg: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/GS_Caltex_Logo.svg/1200px-GS_Caltex_Logo.svg.png",
+            schedule: "- 킥오프 : 05.21 \n- 1차 서면 질문 : 05.22 \n- 1차 중간 제출 : 05.29 \n- 1차 온라인 피드백 : 05.30 \n- 2차 서면 질문 : 06.02 \n- 2차 중간 제출 : 06.10 \n- 2차 대면 피드백 : 06.11 \n- 최종 제출 : 06.24 \n- 발표 팀 선정 : 06.26 \n- 최종 발표 : 07.01",
+            topics: "[주제1] 에너지플러스 앱 고객 퍼널별 정량/정성 조사를 통한 에너지플러스 앱 진단 후 UI/UX 개선 및 연계 프로모션 제안 \n 1) 가입 전 / 가입 중 / 가입 후 / 바로주유 패턴 등록 전 / 바로주유 패턴 등록 후 / 사용 전반의 앱 내 행동 프로세스별 UI/UX 개선안 및 앱 내 Trigger 마케팅 제언 등 \n2) 앱 이용 유저별(저관여 / 중관여 / 고관여) 앱 이용 행태 분석 등에 따른 프로모션 제언 등 \n​ \n​[주제2] 에너지플러스 앱 가입 및 바로주유 서비스 활성화를 위한 온오프라인 IMC 전략 제안(아래 2가지 중 택 1) \n1) 명확한 컨셉안을 기반으로 한 2026년 연간 캠페인 제안 (오프라인 채널은 주유소 필수 포함, ATL 매체 제외) \n2) 신규 캐릭터 활용 세계관 기획 및 캐릭터 기반 IMC 전략 도출",
+            results: "-최우수상: SUMM&IT 1팀",
+            detailImages: ["Projects/GSCaltex1.png", "Projects/GSCaltex2.png","Projects/GSCaltex3.png"]
+        },
+        {
+            id: 6, 
+            category: '25-1', 
+            title: "다운타우너", 
+            desc: "프리미엄 버거 브랜드 다운타우너의 브랜드 팬덤 강화 전략 프로젝트입니다.",
+            thumb: "Projects/Downtowner1.png", 
+            logoImg: "https://cdn.imweb.me/thumbnail/20230616/08937ffab8021.png",
+            schedule: "-킥오프: MM.DD\n-중간 제출: MM.DD\n-최종 제출: MM.DD\n-최종 PT: MM.DD",
+            topics: "-주제: 브랜드 팬덤 형성을 위한 커뮤니티 및 굿즈 전략",
+            results: "-최우수상: 0팀\n-우수상: 0팀",
+            detailImages: ["Projects/Downtowner1.png"]
+        },
+        {
+            id: 7, 
+            category: '25-1', 
+            title: "동아제약", 
+            desc: "박카스 브랜드의 2030 세대 타겟 커뮤니케이션 전략 프로젝트입니다.",
+            thumb: "Projects/DongA3.png", 
+            logoImg: "https://m.dmall.co.kr/_ingpeople/images/donga-ci@3x.png",
+            schedule: "-킥오프: MM.DD\n-중간 제출: MM.DD\n-최종 제출: MM.DD\n-최종 PT: MM.DD",
+            topics: "-주제: 2030 세대에게 다가가는 박카스의 새로운 메시지 전략",
+            results: "-최우수상: 0팀\n-우수상: 0팀",
+            detailImages: ["Projects/DongA3.png"]
+        },
+        {
+            id: 8, 
+            category: '24-2', 
+            title: "콘티넨탈 타이어", 
+            desc: "글로벌 타이어 브랜드 인지도 확대를 위한 스포츠 마케팅 제안 프로젝트입니다.",
+            thumb: "Projects/Continental3.png", 
+            logoImg: "https://i.dell.com/is/image/DellContent/content/dam/documents-and-videos/dv2/pan-dell/en/customer-stories/continental/shared-assets/logo/continental-logo-1400x600.png?qlt=95&fit=constrain,1&hei=300&wid=700&fmt=png-alpha",
+            schedule: "-킥오프: MM.DD\n-중간 제출: MM.DD\n-최종 제출: MM.DD\n-최종 PT: MM.DD",
+            topics: "-주제: 스포츠 스폰서십을 활용한 브랜드 인지도 제고 방안",
+            results: "-최우수상: 0팀\n-우수상: 0팀",
+            detailImages: ["Projects/Continental3.png"]
+        },
+        {
+            id: 9, 
+            category: '24-2', 
+            title: "하나증권", 
+            desc: "디지털 투자 서비스 활성화를 위한 MZ세대 타겟 마케팅 프로젝트입니다.",
+            thumb: "Projects/Hana3.png", 
+            logoImg: "https://newsroom.etomato.com/userfiles/%EA%B5%AD%EB%AC%B8_%ED%95%98%EB%82%98%EC%A6%9D%EA%B6%8CCI_%EA%B0%80%EB%A1%9C%ED%98%95_%EA%B8%B0%EB%B3%B8.png",
+            schedule: "-킥오프: MM.DD\n-중간 제출: MM.DD\n-최종 제출: MM.DD\n-최종 PT: MM.DD",
+            topics: "-주제: MZ세대의 투자 참여를 유도하는 디지털 마케팅 전략",
+            results: "-최우수상: 0팀\n-우수상: 0팀",
+            detailImages: ["Projects/Hana3.png"]
+        },
+        {
+            id: 10, 
+            category: '24-2', 
+            title: "롯데렌터카 Gcar", 
+            desc: "카셰어링 서비스 Gcar의 이용률 증대 및 브랜딩 전략 프로젝트입니다.",
+            thumb: "Projects/Gcar1.png", 
+            logoImg: "https://pds.saramin.co.kr/company/logo/202509/03/t205pw53_ja1w-1mdp5av_logo.png",
+            schedule: "-킥오프: MM.DD\n-중간 제출: MM.DD\n-최종 제출: MM.DD\n-최종 PT: MM.DD",
+            topics: "-주제: Gcar 이용 활성화를 위한 타겟별 프로모션 전략",
+            results: "-최우수상: 0팀\n-우수상: 0팀",
+            detailImages: ["Projects/Gcar1.png"]
+        },
+        {
+            id: 11, 
+            category: '24-2', 
+            title: "현대백화점", 
+            desc: "오프라인 유통의 새로운 경험, 팝업스토어 기획 및 제안 프로젝트입니다.",
+            thumb: "Projects/Hyundai1.png", 
+            logoImg: "https://i.namu.wiki/i/TOdncoVVu5A95Dkn5ucyy_Du_vMUwepGR2mz-v3wNYy_3iinmhFsnGWfXRndJsTbTA3uxPyM6oKQmptyUdmceA.svg",
+            schedule: "-킥오프: MM.DD\n-중간 제출: MM.DD\n-최종 제출: MM.DD\n-최종 PT: MM.DD",
+            topics: "-주제: MZ세대를 유입시키는 이색 팝업스토어 기획",
+            results: "-최우수상: 0팀\n-우수상: 0팀",
+            detailImages: ["Projects/Hyundai1.png"]
+        }
+    ];
+
+    const grid = document.getElementById('project-grid');
+    const loadTrigger = document.getElementById('load-more-trigger');
+    const spinner = document.getElementById('loading-spinner');
+    
+    let currentCategory = 'all';
+    let filteredProjects = [];
+    let currentItemCount = 0;
+    const itemsPerLoad = 6; 
+    let isLoading = false;
+
+    function initProjects(category) {
+        currentCategory = category;
+        currentItemCount = 0;
+        grid.innerHTML = ''; 
+        loadTrigger.style.display = 'flex'; 
+
+        if (category === 'all') {
+            filteredProjects = allProjects;
+        } else {
+            filteredProjects = allProjects.filter(p => p.category === category);
+        }
+        loadProjects();
+    }
+
+    function createProjectCard(project) {
+        const card = document.createElement('div');
+        card.className = 'project-card';
+        
+        const logoError = "this.style.display='none';"; 
+
+        card.innerHTML = `
+            <img src="${project.thumb}" alt="${project.title}" class="project-thumb">
+            <div class="project-overlay">
+                <img src="${project.logoImg}" alt="${project.title} Logo" class="project-hover-logo" onerror="${logoError}">
+            </div>
+        `;
+        card.addEventListener('click', () => openModal(project));
+        return card;
+    }
+
+    function loadProjects(count = itemsPerLoad) {
+        if (isLoading || currentItemCount >= filteredProjects.length) return;
+        
+        isLoading = true;
+        if(currentItemCount > 0) spinner.style.display = 'block'; 
+
+        setTimeout(() => {
+            const nextItems = filteredProjects.slice(currentItemCount, currentItemCount + count);
+            nextItems.forEach(project => {
+                grid.appendChild(createProjectCard(project));
+            });
+            currentItemCount += nextItems.length;
+            
+            isLoading = false;
+            spinner.style.display = 'none';
+
+            if (currentItemCount >= filteredProjects.length) {
+                loadTrigger.style.display = 'none';
+            }
+        }, 300);
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+            loadProjects();
+        }
+    }, { threshold: 0.1 });
+    observer.observe(loadTrigger);
+
+    const categoryBtns = document.querySelectorAll('.category-btn');
+    categoryBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            categoryBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const filter = btn.getAttribute('data-filter');
+            initProjects(filter);
+        });
+    });
+
+    initProjects('all');
+
+
+    const modal = document.getElementById('project-modal');
+    const closeBtn = document.getElementById('modal-close-btn');
+    const modalImagesContainer = document.getElementById('modal-images-container');
+    const modalRightContent = document.getElementById('modal-right-content');
+    const modalTopicsLeft = document.getElementById('modal-topics-left');
+
+    function formatSimpleList(text) {
+        if (!text) return '';
+        const lines = text.split('\n');
+        
+        return lines.map(line => {
+            let cleanLine = line.replace(/^-\s*/, '').trim();
+            if (!cleanLine) return '';
+            if (cleanLine.includes(':')) {
+                const parts = cleanLine.split(':');
+                const key = parts[0].trim();
+                const val = parts.slice(1).join(':').trim();
+                return `<div class="simple-list-item"><span class="bold-key">${key}</span>${val}</div>`;
+            }
+            
+            return `<div class="simple-list-item">${cleanLine}</div>`;
+        }).join('');
+    }
+
+    function formatTopicText(text) {
+        if (!text) return '';
+        return text.split('\n').map(line => {
+             return line.replace(/^-\s*/, '').trim();
+        }).join('\n');
+    }
+
+    function openModal(project) {
+        document.getElementById('modal-hero-img').src = project.thumb;
+        document.getElementById('modal-title').innerText = project.title;
+        document.getElementById('modal-desc').innerText = project.desc;
+        
+        modalTopicsLeft.innerText = formatTopicText(project.topics);
+
+        modalRightContent.innerHTML = `
+            <div class="info-section">
+                <div class="info-title">Schedule</div>
+                <div>${formatSimpleList(project.schedule)}</div>
+            </div>
+            <div class="info-section">
+                <div class="info-title">Awards</div>
+                <div>${formatSimpleList(project.results)}</div>
+            </div>
+        `;
+
+        modalImagesContainer.innerHTML = '';
+        if(project.detailImages) {
+            project.detailImages.forEach(imgUrl => {
+                const img = document.createElement('img');
+                img.src = imgUrl;
+                img.className = 'detail-image';
+                modalImagesContainer.appendChild(img);
+            });
+        }
+
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+
+</script>
+</body>
+</html>

@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SUMM&IT</title>
+
+<link rel="icon" type="image/x-icon" href="SUMMIT_Fabicon.ico">
+<link rel="shortcut icon" type="image/x-icon" href="SUMMIT_Fabicon.ico">
+
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+    html { scroll-behavior: smooth; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { 
+        font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+        background-color: #f9f9f9; 
+        color: #333;
+        overflow-x: hidden; 
+    }
+    a { text-decoration: none; color: inherit; }
+    ul { list-style: none; }
+    button { font-family: inherit; cursor: pointer; }
+
+    header {
+        position: fixed; top: 0; left: 0; width: 100%;
+        background-color: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid #eee;
+        z-index: 1000; height: 80px;
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 0 5%;
+    }
+
+    .logo-img { height: 24px; width: auto; object-fit: contain; display: block; }
+
+    .nav-container {
+        display: flex;
+        align-items: center;
+        flex: 1; 
+    }
+
+    .nav-menu { 
+        display: flex; 
+        gap: 40px; 
+        font-size: 16px; 
+        font-weight: 700; 
+        margin: 0 auto; 
+    }
+    
+    .nav-item { cursor: pointer; transition: color 0.3s ease; color: #000; display: block; }
+    .nav-menu:hover .nav-item { color: #ccc; }
+    .nav-menu .nav-item:hover { color: #000; }
+    .nav-item.active-page { color: #009490 !important; }
+
+    .apply-btn-header {
+        background-color: #009490; color: white;
+        padding: 13px 32px; 
+        border-radius: 8px;
+        font-weight: 700; font-size: 15px; border: none;
+        cursor: pointer; transition: background-color 0.3s ease; white-space: nowrap;
+    }
+    .apply-btn-header { background-color: #007570; }
+
+    .menu-toggle { display: none; font-size: 24px; cursor: pointer; color: #333; z-index: 1100; }
+
+    main {
+        display: flex; flex-direction: column; align-items: center;
+        padding-top: 80px;
+        padding-bottom: 100px;
+        width: 100%;
+        min-height: 100vh;
+        gap:120px;
+    }
+
+    .content-wrapper {
+        width: 100%; 
+        max-width: 1000px; 
+        margin: 0 auto;    
+        padding: 0 20px;   
+    }
+
+    .section-box, input, textarea, select, button.save-btn, button.file-btn, button.url-btn, .file-display, .saved-item { 
+        border-radius: 0 !important; 
+    }
+
+    input:focus, textarea:focus, select:focus {
+        outline: none; border-color: #333 !important;
+    }
+    input[type="text"], input[type="email"], input[type="tel"], input[type="date"], input[type="number"], input[type="url"], select {
+        width: 100%; padding: 0 12px; border: 1px solid #ddd;
+        font-size: 14px; color: #333; transition: border-color 0.2s;
+        height: 48px;
+        background-color: white;
+    }
+    input::placeholder { color: #ccc; }
+
+    .form-header { 
+        text-align: left; margin-bottom: 40px; 
+        border-bottom: 2px solid #333; padding-bottom: 20px; 
+    }
+    .form-title { font-size: 32px; font-weight: 800; margin-bottom: 10px; }
+    .form-desc { color: #666; font-size: 16px; display: flex; justify-content: space-between; align-items: flex-end;}
+    .form-note { color: #009490; font-size: 13px; font-weight: 600; }
+
+    .section-box {
+        background-color: white; 
+        padding: 40px; margin-bottom: 20px;
+        border: 1px solid #eee;
+    }
+    .section-title {
+        font-size: 20px; font-weight: 800; color: #111; margin-bottom: 24px;
+        border-bottom: 1px solid #333; padding-bottom: 15px;
+        display: flex; align-items: center; justify-content: space-between;
+    }
+    .section-info { font-size: 13px; color: #888; font-weight: 400; margin-left: 10px; }
+    .required-mark { color: #009490; margin-left: 2px; font-weight: bold; }
+
+    .personal-info-grid {
+        display: grid; 
+        grid-template-columns: repeat(2, 1fr); 
+        gap: 24px 20px;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 8px; }
+    .field-label { font-size: 14px; font-weight: 700; color: #333; }
+    .span-2 { grid-column: span 2; }
+
+    /* 활동경험 & 수상경력*/
+    .input-form-box {
+        background-color: #fdfdfd; border: 1px solid #ddd; padding: 24px; margin-bottom: 20px;
+    }
+    .input-row {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;
+    }
+    .activity-textarea {
+        width: 100%; height: 80px; padding: 12px; border: 1px solid #ddd; resize: vertical; font-size: 14px;
+    }
+    .form-btn-area { display: flex; justify-content: flex-end; margin-top: 15px; }
+    .save-btn {
+        background-color: #eee; color: #333; padding: 0 24px; height: 40px; font-size: 14px; font-weight: 700; border: none; cursor: pointer; transition: 0.2s;
+    }
+    .save-btn:hover { background-color: #333; color: white; }
+
+    .saved-list { display: flex; flex-direction: column; gap: 10px; }
+    .saved-item {
+        display: flex; justify-content: space-between; align-items: center;
+        background: white; border: 1px solid #eee; padding: 20px; transition: 0.2s;
+    }
+    .saved-item:hover { border-color: #ccc; }
+    .saved-info h4 { font-size: 16px; font-weight: 700; margin-bottom: 5px; }
+    .saved-info span { font-size: 13px; color: #666; display: block; margin-bottom: 8px; }
+    .saved-info p { font-size: 14px; color: #333; line-height: 1.4; white-space: pre-wrap; }
+    .item-actions { display: flex; gap: 10px; }
+    .action-btn { background: none; border: none; cursor: pointer; color: #999; font-size: 18px; }
+    .action-btn:hover { color: #333; }
+
+    /* 서술형 질문 */
+    .essay-group { margin-bottom: 50px; }
+    .essay-question {
+        font-size: 15px; font-weight: 700; margin-bottom: 12px; color: #222; display: block; line-height: 1.5;
+    }
+    .essay-question sub { font-size: 12px; color: #888; font-weight: 400; vertical-align: baseline; margin-left: 5px; }
+    .essay-textarea {
+        width: 100%; height: 250px; padding: 15px; border: 1px solid #ddd; background-color: #fff; resize: vertical; font-size: 14px; line-height: 1.6;
+    }
+    .char-count { text-align: right; font-size: 12px; color: #888; margin-top: 5px; }
+
+    /* 포트폴리오 */
+    .portfolio-simple-wrapper { display: flex; flex-direction: column; gap: 15px; }
+    .portfolio-row { display: flex; align-items: center; gap: 0; width: 100%; }
+    .pf-label { width: 120px; font-size: 14px; font-weight: 700; color: #333; flex-shrink: 0; }
+    .file-btn {
+        background-color: #009490; color: #ffffff; font-weight: 700; font-size: 14px;
+        border: none; padding: 0 20px; height: 48px;
+        cursor: pointer; display: flex; align-items: center; justify-content: center;
+        white-space: nowrap; transition: 0.2s;
+    }
+    .file-btn:hover { background-color: #025469; }
+    .file-display {
+        flex: 1; border: 1px solid #ddd; border-left: none; height: 48px; padding: 0 15px;
+        font-size: 14px; color: #999; background-color: #fdfdfd; cursor: default;
+    }
+    .url-btn {
+        background-color: #eee; color: #333; font-weight: 700; font-size: 14px;
+        border: none; padding: 0 20px; height: 48px;
+        cursor: pointer; display: flex; align-items: center; justify-content: center;
+        white-space: nowrap; transition: 0.2s;
+    }
+    .url-btn:hover { background-color: #ddd; }
+    .url-input {
+        flex: 1; border: 1px solid #ddd; border-left: none; height: 48px; padding: 0 15px; font-size: 14px;
+    }
+    .url-input:focus { border-color: #333 !important; border-left: 1px solid #333; }
+
+    .custom-table { width: 100%; border-collapse: collapse; }
+    .custom-table th, .custom-table td {
+        border: 1px solid #ddd; padding: 12px; text-align: center; font-size: 14px;
+    }
+    .custom-table th { background-color: #f5f5f5; color: #333; font-weight: 700; }
+    .rating-options, .interview-check { display: flex; justify-content: center; gap: 15px; align-items: center; }
+    input[type="radio"], input[type="checkbox"] { 
+        width: 16px; height: 16px; cursor: pointer; accent-color: #009490; margin: 0;
+    }
+
+    /* 기타 설문 */
+    .survey-list { display: flex; flex-wrap: wrap; gap: 10px; }
+    .survey-item {
+        display: flex; align-items: center; gap: 8px;
+        border: 1px solid #ddd; 
+        padding: 0 16px; min-height: 48px; 
+        font-size: 14px; cursor: pointer; color: #555; background: white;
+        transition: all 0.2s;
+    }
+    .survey-item:hover { border-color: #999; color: #333; }
+    .survey-item input[type="checkbox"] { margin: 0; }
+    .survey-item.other-type { width: auto; }
+    .other-text-span { flex-shrink: 0; margin-right: 5px; font-weight: 500; }
+    .survey-input-text { 
+        border: none; border-bottom: 1px solid #ccc; 
+        padding: 0 5px; height: 24px; width: 200px;
+        font-size: 14px; background: transparent; outline: none;
+        display: none; margin-left: 5px;
+    }
+    .survey-input-text:focus { border-bottom-color: #009490; }
+
+    /* 제출*/
+    .submit-area { text-align: center; margin-top: 60px; }
+    .submit-btn {
+        background-color: #ccc; color: white;
+        padding: 20px 80px; border-radius: 8px !important;
+        font-size: 18px; font-weight: 800; border: none;
+        cursor: not-allowed; transition: all 0.3s;
+    }
+    .submit-btn.active { background-color: #009490; cursor: pointer; }
+    .submit-btn.active:hover { background-color: #007570; }
+
+
+
+    footer { width: 100%; background-color: #1a1a1a; color: white; padding: 60px 5%; margin-top: 0; }
+    .footer-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 40px; padding: 0; }
+    .footer-left { flex: 1; min-width: 250px; }
+    .footer-logo { height: 30px; margin-bottom: 20px; opacity: 0.9; filter: brightness(0) invert(1); }
+    .footer-tagline { font-size: 24px; font-weight: 700; margin-bottom: 10px; }
+    .footer-sub { font-size: 14px; color: #888; margin-bottom: 40px; }
+    .copyright { font-size: 13px; color: #666; }
+    .footer-right { display: flex; gap: 60px; flex-wrap: wrap; }
+    .footer-column h4 { font-size: 14px; font-weight: 700; text-transform: uppercase; margin-bottom: 20px; color: #ccc; }
+    .footer-column p { font-size: 14px; color: #999; margin-bottom: 10px; line-height: 1.6; }
+    
+    .social-icons { display: flex; gap: 15px; margin-top: 20px; }
+    .social-icon { 
+        width: 36px; height: 36px; 
+        background: #333; 
+        border-radius: 4px; 
+        display: flex; align-items: center; justify-content: center; 
+        cursor: pointer; transition: 0.3s;
+        color: #aaa;
+        font-size: 18px;
+    }
+    .social-icon:hover { background: #555; color: white; }
+
+
+    @media (max-width: 768px) {
+        header { padding: 0 20px; justify-content: space-between; }
+        .logo-img { order: 0; }
+        .menu-toggle { display: block; order: 1; margin-left: auto; }
+        
+        .nav-container {
+            display: flex; 
+            position: absolute;
+            top: 79px; 
+            left: 0;
+            width: 100%;
+            background: white;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0;
+            overflow: hidden;
+            max-height: 0;
+            opacity: 0;
+            transition: max-height 0.4s ease-in-out, opacity 0.4s ease-in-out;
+            border-bottom: 1px solid #eee;
+        }
+
+        .nav-container.active {
+            max-height: 500px; 
+            opacity: 1;
+            padding-bottom: 20px;
+        }
+
+        .nav-menu {
+            flex-direction: column;
+            width: 100%;
+            gap: 0;
+            margin: 0; 
+        }
+
+        .nav-item {
+            width: 100%;
+            padding: 20px 24px;
+            font-size: 18px;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        
+        .apply-btn-header {
+            margin: 20px 24px;
+            width: calc(100% - 48px);
+            text-align: center;
+            display: block; 
+        }
+
+        .content-wrapper, .footer-content { padding: 0 20px; }
+        .personal-info-grid { grid-template-columns: 1fr; }
+        .span-2 { grid-column: span 1; }
+        .input-row { grid-template-columns: 1fr; }
+        
+        .portfolio-row { flex-direction: column; align-items: flex-start; gap: 5px; }
+        .pf-label { margin-bottom: 5px; }
+        .file-display, .url-input { border-left: 1px solid #ddd; width: 100%; }
+        .survey-input-text { width: 120px; }
+
+        .footer-content { flex-direction: column; gap: 40px; } 
+        .footer-right { flex-direction: column; gap: 30px; }
+    }
+</style>
+</head>
+<body>
+    <header>
+        <a href="index.html"><img src="SUMM&IT logo.png" alt="SUMM&IT" class="logo-img"></a>
+        <div class="menu-toggle" id="mobile-menu-btn">☰</div>
+        <div class="nav-container" id="nav-container">
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-item">써밋 소개</a></li>
+                <li><a href="Projects.html" class="nav-item">프로젝트</a></li>
+                <li><a href="TeamCulture.html" class="nav-item">팀 문화</a></li>
+                <li><a href="Recruitment.html" class="nav-item">모집 안내</a></li>
+            </ul>
+            <button class="apply-btn-header" onclick="location.href='Apply.html'">지원하기</button>
+        </div>
+    </header>
+
+    <main>
+        <div class="content-wrapper">
+            <div class="form-header">
+                <h1 class="form-title">지원서 작성</h1>
+                <div class="form-desc">
+                    <span>SUMM&IT 33기 신입 부원 모집</span>
+                    <span class="form-note">* 표시는 필수 입력 항목입니다.</span>
+                </div>
+            </div>
+
+            <form id="recruitForm" oninput="checkFormValidity()">
+                
+                <!-- 1. 인적사항 -->
+                <div class="section-box">
+                    <h2 class="section-title">인적사항 <span class="section-info">심사 결과에는 반영되지 않는 항목입니다.</span></h2>
+                    <div class="personal-info-grid">
+                        <div class="field-group"><label class="field-label">이름<span class="required-mark">*</span></label><input type="text" required></div>
+                        <div class="field-group"><label class="field-label">학번<span class="required-mark">*</span></label><input type="text" required></div>
+                        <div class="field-group">
+                            <label class="field-label">성별<span class="required-mark">*</span></label>
+                            <select required><option value="">선택</option><option value="male">남</option><option value="female">여</option></select>
+                        </div>
+                        <div class="field-group"><label class="field-label">연락처<span class="required-mark">*</span></label><input type="tel" placeholder="010-0000-0000" required></div>
+                        <div class="field-group"><label class="field-label">생년월일<span class="required-mark">*</span></label><input type="date" required></div>
+                        <div class="field-group"><label class="field-label">현재 학기 수<span class="required-mark">*</span></label><input type="number" placeholder="2025년 2학기 기준" required></div>
+                        <div class="field-group"><label class="field-label">병역필여부</label><select><option value="">선택</option><option>필</option><option>미필</option><option>해당없음</option></select></div>
+                        <div class="field-group"><label class="field-label">1전공/2전공<span class="required-mark">*</span></label><input type="text" required></div>
+                        <div class="field-group span-2"><label class="field-label">E-mail<span class="required-mark">*</span></label><input type="email" required></div>
+                        <div class="field-group span-2"><label class="field-label">관심 진로와 직무</label><input type="text" placeholder="예: IT 서비스 기획, 백엔드 개발 등"></div>
+                        <div class="field-group span-2"><label class="field-label">25-2 활동 계획<span class="required-mark">*</span></label><input type="text" placeholder="재학/휴학 여부 및 주요 계획 (인턴, 동아리 병행 등)" required></div>
+                    </div>
+                </div>
+
+                <!-- 2. 활동경험 -->
+                <div class="section-box">
+                    <h2 class="section-title">활동경험 <span class="section-info">동아리, 프로젝트, 인턴 등 (최대 5개)</span></h2>
+                    <div class="input-form-box" id="activityInputArea">
+                        <input type="hidden" id="editIndex" value="-1"> 
+                        <div class="input-row">
+                            <div class="field-group"><label class="field-label">활동명</label><input type="text" id="actName" placeholder="활동명 입력"></div>
+                            <div class="field-group"><label class="field-label">활동 기간</label><input type="text" id="actPeriod" placeholder="YYYY.MM - YYYY.MM"></div>
+                        </div>
+                        <div class="field-group"><label class="field-label">활동 내용 및 역할</label><textarea id="actContent" class="activity-textarea" placeholder="본인이 맡았던 역할과 성과를 중심으로 작성해주세요."></textarea></div>
+                        <div class="form-btn-area"><button type="button" class="save-btn" onclick="saveActivity()">저장</button></div>
+                    </div>
+                    <div id="activityList" class="saved-list"></div>
+                </div>
+
+                <!-- 3. 수상 경력 -->
+                <div class="section-box">
+                    <h2 class="section-title">수상 경력 및 자격증</h2>
+                    <div class="input-form-box" id="awardInputArea">
+                        <input type="hidden" id="awardEditIndex" value="-1">
+                        <div class="input-row">
+                            <div class="field-group"><label class="field-label">단체명 / 자격증명</label><input type="text" id="awardName" placeholder="명칭 입력"></div>
+                            <div class="field-group"><label class="field-label">시기</label><input type="text" id="awardDate" placeholder="YYYY.MM.DD"></div>
+                        </div>
+                        <div class="field-group"><label class="field-label">내용</label><input type="text" id="awardContent" placeholder="수상 등급 또는 자격 급수 등"></div>
+                        <div class="form-btn-area"><button type="button" class="save-btn" onclick="saveAward()">저장</button></div>
+                    </div>
+                    <div id="awardList" class="saved-list"></div>
+                </div>
+
+                <!-- 4. 서술형 질문 -->
+                <div class="section-box">
+                    <h2 class="section-title">서술형 질문 <span class="section-info">공백 포함 글자 수</span></h2>
+                    <div class="essay-group">
+                        <label class="essay-question">1. 본인을 설명하는 3가지 키워드를 활용해 SUMM&IT이 지원자를 뽑아야 하는 이유가 무엇인지 말씀해주세요.<span class="required-mark">*</span> <sub>(700자 내외)</sub></label>
+                        <textarea class="essay-textarea" required oninput="countChar(this)"></textarea>
+                        <div class="char-count">0 / 1000</div>
+                    </div>
+                    <div class="essay-group">
+                        <label class="essay-question">2. 단체활동에 참여한 경험 중 본인이 맡았던 역할과 그 역할을 통해 팀에 기여한 방식에 대해, 구체적인 사례를 들어 설명해주세요.<span class="required-mark">*</span> <sub>(700자 내외)</sub></label>
+                        <textarea class="essay-textarea" required oninput="countChar(this)"></textarea>
+                        <div class="char-count">0 / 1000</div>
+                    </div>
+                    <div class="essay-group">
+                        <label class="essay-question">3. 마케팅이 무엇인지 본인의 생각을 제시한 뒤, 이를 바탕으로 관련 진로를 희망하는 이유를 설명해주세요.<span class="required-mark">*</span> <sub>(700자 내외)</sub></label>
+                        <textarea class="essay-textarea" required oninput="countChar(this)"></textarea>
+                        <div class="char-count">0 / 1000</div>
+                    </div>
+                    <div class="essay-group">
+                        <label class="essay-question">4. 최근 관심있게 본 마케팅 우수 사례를 제시하고, 다음의 내용을 포함하여 해당 사례에 대한 본인의 생각을 서술해주세요.<span class="required-mark">*</span> <sub>(800자 내외)</sub><br><span style="font-weight:400; font-size:14px; display:block; margin-top:8px; color:#666;">(1) 기업이 해당 마케팅을 시행하게 된 배경 (2) 핵심 솔루션 및 인사이트 (3) 발전 아이디어</span></label>
+                        <textarea class="essay-textarea" required oninput="countChar(this)"></textarea>
+                        <div class="char-count">0 / 1500</div>
+                    </div>
+                </div>
+
+                <!-- 5. 포트폴리오 -->
+                <div class="section-box">
+                    <h2 class="section-title">포트폴리오 <span class="section-info">선택 사항</span></h2>
+                    <div class="portfolio-simple-wrapper">
+                        <div class="portfolio-row">
+                            <button type="button" class="file-btn" onclick="document.getElementById('pf-file').click()">파일추가</button>
+                            <input type="text" class="file-display" id="pf-file-name" placeholder="PDF, Max 20MB" readonly>
+                            <input type="file" id="pf-file" style="display:none;" onchange="document.getElementById('pf-file-name').value = this.files[0]?.name || ''">
+                        </div>
+                        <div class="portfolio-row">
+                            <button type="button" class="url-btn">URL추가</button>
+                            <input type="url" class="url-input" placeholder="http:// (Notion, GitHub 등)">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 6. 핵심 역량 평가 -->
+                <div class="section-box">
+                    <h2 class="section-title">핵심 역량 자기평가 <span class="section-info">솔직하게 답변해주세요.</span></h2>
+                    <table class="custom-table rating-table">
+                        <thead><tr><th>항목</th><th>평가 (1: 낮음 ~ 5: 높음)</th></tr></thead>
+                        <tbody>
+                            <tr><td>디자인 감각</td><td><div class="rating-options"><label class="rating-label"><input type="radio" name="design" value="1"> 1</label><label class="rating-label"><input type="radio" name="design" value="2"> 2</label><label class="rating-label"><input type="radio" name="design" value="3"> 3</label><label class="rating-label"><input type="radio" name="design" value="4"> 4</label><label class="rating-label"><input type="radio" name="design" value="5"> 5</label></div></td></tr>
+                            <tr><td>발표 능력</td><td><div class="rating-options"><label class="rating-label"><input type="radio" name="speech" value="1"> 1</label><label class="rating-label"><input type="radio" name="speech" value="2"> 2</label><label class="rating-label"><input type="radio" name="speech" value="3"> 3</label><label class="rating-label"><input type="radio" name="speech" value="4"> 4</label><label class="rating-label"><input type="radio" name="speech" value="5"> 5</label></div></td></tr>
+                            <tr><td>논리적 사고</td><td><div class="rating-options"><label class="rating-label"><input type="radio" name="logic" value="1"> 1</label><label class="rating-label"><input type="radio" name="logic" value="2"> 2</label><label class="rating-label"><input type="radio" name="logic" value="3"> 3</label><label class="rating-label"><input type="radio" name="logic" value="4"> 4</label><label class="rating-label"><input type="radio" name="logic" value="5"> 5</label></div></td></tr>
+                            <tr><td>창의적 아이디어</td><td><div class="rating-options"><label class="rating-label"><input type="radio" name="creative" value="1"> 1</label><label class="rating-label"><input type="radio" name="creative" value="2"> 2</label><label class="rating-label"><input type="radio" name="creative" value="3"> 3</label><label class="rating-label"><input type="radio" name="creative" value="4"> 4</label><label class="rating-label"><input type="radio" name="creative" value="5"> 5</label></div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 7. 면접 가능 시간 -->
+                <div class="section-box">
+                    <h2 class="section-title">면접 가능 시간 선택 <span class="section-info">가능한 모든 시간을 체크해주세요.</span></h2>
+                    <div style="overflow-x:auto;">
+                        <table class="custom-table interview-table">
+                            <thead><tr><th>시간대</th><th>8월 25일(월)</th><th>8월 26일(화)</th><th>8월 27일(수)</th><th>8월 28일(목)</th></tr></thead>
+                            <tbody>
+                                <tr><td style="background:#f9f9f9; font-weight:600;">19:00 ~ 20:00</td><td><div class="interview-check"><input type="checkbox"></div></td><td><div class="interview-check"><input type="checkbox"></div></td><td><div class="interview-check"><input type="checkbox"></div></td><td><div class="interview-check"><input type="checkbox"></div></td></tr>
+                                <tr><td style="background:#f9f9f9; font-weight:600;">20:00 ~ 21:00</td><td><div class="interview-check"><input type="checkbox"></div></td><td><div class="interview-check"><input type="checkbox"></div></td><td><div class="interview-check"><input type="checkbox"></div></td><td><div class="interview-check"><input type="checkbox"></div></td></tr>
+                                <tr><td style="background:#f9f9f9; font-weight:600;">21:00 ~ 22:00</td><td><div class="interview-check"><input type="checkbox"></div></td><td><div class="interview-check"><input type="checkbox"></div></td><td><div class="interview-check"><input type="checkbox"></div></td><td><div class="interview-check"><input type="checkbox"></div></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 8. 기타 설문 -->
+                <div class="section-box" style="margin-bottom:0;">
+                    <h2 class="section-title">기타 설문</h2>
+                    <div class="field-group" style="margin-bottom:30px;"><label class="field-label" style="margin-bottom:10px;">1. 지원자께서 SUMM&IT을 처음 알게 된 시기</label><input type="text" placeholder="예: 2024년 1학기 초"></div>
+                    <div class="field-group" style="margin-bottom:30px;"><label class="field-label" style="margin-bottom:10px;">2. 이번 리크루팅에서 아쉬웠던 점 (자유 의견)</label><input type="text" placeholder="의견을 남겨주세요"></div>
+                    <div class="field-group">
+                        <label class="field-label" style="margin-bottom:10px;">3. SUMM&IT을 알게 된 경로 (중복 선택 가능)</label>
+                        <div class="survey-list">
+                            <label class="survey-item"><input type="checkbox"> 서담/에타</label>
+                            <label class="survey-item"><input type="checkbox"> 인스타그램</label>
+                            <label class="survey-item"><input type="checkbox"> 페이스북</label>
+                            <label class="survey-item"><input type="checkbox"> 포스터/현수막</label>
+                            <label class="survey-item"><input type="checkbox"> 지인 추천</label>
+                            <label class="survey-item other-type"><input type="checkbox" onchange="toggleOtherInput(this)"><span class="other-text-span">기타</span><input type="text" class="survey-input-text" placeholder="내용 입력"></label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="submit-area">
+                    <button type="submit" id="submitBtn" class="submit-btn" disabled>지원서 제출하기</button>
+                    <p style="margin-top:20px; color:#888; font-size:14px;">제출 후에는 수정이 불가능하니 신중하게 확인해주세요.</p>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-left">
+                <img src="SUMM&IT logo.png" alt="Logo" class="footer-logo">
+                <div class="footer-tagline">서강대학교 실전 마케팅 학회</div>
+                <div class="footer-sub">실전 압축 경험으로 마케팅의 정상에 도전하다!</div>
+                <div class="copyright">Copyright © 2025 SUMM&IT. All Rights Reserved.</div>
+            </div>
+            <div class="footer-right">
+                <div class="footer-column">
+                    <h4>CONTACT US</h4>
+                    <p>sogangsummit@gmil.com</p>
+                    <p>학회장 010-9969-3078</p>
+                    <div class="social-icons">
+                        <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h4>Location</h4>
+                    <p>서울특별시 마포구 백범로 35</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+<script>
+    document.getElementById('mobile-menu-btn').addEventListener('click', () => {
+        document.getElementById('nav-container').classList.toggle('active');
+    });
+
+    document.querySelectorAll('.nav-item').forEach(link => {
+        link.addEventListener('click', () => {
+            document.getElementById('nav-container').classList.remove('active');
+        });
+    });
+
+    function toggleOtherInput(checkbox) {
+        const input = checkbox.parentElement.querySelector('.survey-input-text');
+        if (input) {
+            if (checkbox.checked) {
+                input.style.display = 'inline-block';
+                input.focus();
+            } else {
+                input.style.display = 'none';
+                input.value = '';
+            }
+        }
+    }
+
+    function checkFormValidity() {
+        const form = document.getElementById('recruitForm');
+        const submitBtn = document.getElementById('submitBtn');
+        if (form.checkValidity()) {
+            submitBtn.classList.add('active');
+            submitBtn.disabled = false;
+        } else {
+            submitBtn.classList.remove('active');
+            submitBtn.disabled = true;
+        }
+    }
+
+    function countChar(textarea) {
+        const countDiv = textarea.nextElementSibling;
+        const currentLength = textarea.value.length;
+        const maxLength = textarea.nextElementSibling.innerText.split(' / ')[1] || 1000;
+        countDiv.innerText = `${currentLength} / ${maxLength}`;
+        checkFormValidity();
+    }
+
+    let activityData = [];
+    let awardData = [];
+
+    function saveActivity() {
+        const name = document.getElementById('actName').value;
+        const period = document.getElementById('actPeriod').value;
+        const content = document.getElementById('actContent').value;
+        const editIndex = document.getElementById('editIndex').value;
+
+        if (!name) { alert('활동명을 입력해주세요.'); return; }
+
+        if (editIndex > -1) {
+            activityData[editIndex] = { name, period, content };
+            document.getElementById('editIndex').value = -1;
+        } else {
+            activityData.push({ name, period, content });
+        }
+
+        renderActivityList();
+        document.getElementById('actName').value = '';
+        document.getElementById('actPeriod').value = '';
+        document.getElementById('actContent').value = '';
+    }
+
+    function renderActivityList() {
+        const listContainer = document.getElementById('activityList');
+        listContainer.innerHTML = ''; 
+        activityData.forEach((item, index) => {
+            const div = document.createElement('div');
+            div.className = 'saved-item';
+            div.innerHTML = `
+                <div class="saved-info"><h4>${item.name}</h4><span>${item.period}</span><p>${item.content}</p></div>
+                <div class="item-actions"><button type="button" class="action-btn" onclick="editActivity(${index})" title="수정">✎</button><button type="button" class="action-btn" onclick="deleteActivity(${index})" title="삭제">×</button></div>
+            `;
+            listContainer.appendChild(div);
+        });
+    }
+
+    function editActivity(index) {
+        const item = activityData[index];
+        document.getElementById('actName').value = item.name;
+        document.getElementById('actPeriod').value = item.period;
+        document.getElementById('actContent').value = item.content;
+        document.getElementById('editIndex').value = index; 
+        document.getElementById('activityInputArea').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function deleteActivity(index) {
+        if(confirm('이 활동 내역을 삭제하시겠습니까?')) {
+            activityData.splice(index, 1);
+            renderActivityList();
+        }
+    }
+
+    function saveAward() {
+        const name = document.getElementById('awardName').value;
+        const date = document.getElementById('awardDate').value;
+        const content = document.getElementById('awardContent').value;
+        const editIndex = document.getElementById('awardEditIndex').value;
+
+        if (!name) { alert('명칭을 입력해주세요.'); return; }
+
+        if (editIndex > -1) {
+            awardData[editIndex] = { name, date, content };
+            document.getElementById('awardEditIndex').value = -1;
+        } else {
+            awardData.push({ name, date, content });
+        }
+        renderAwardList();
+        document.getElementById('awardName').value = '';
+        document.getElementById('awardDate').value = '';
+        document.getElementById('awardContent').value = '';
+    }
+
+    function renderAwardList() {
+        const list = document.getElementById('awardList');
+        list.innerHTML = '';
+        awardData.forEach((item, index) => {
+            const div = document.createElement('div');
+            div.className = 'saved-item';
+            div.innerHTML = `
+                <div class="saved-info"><h4>${item.name}</h4><span>${item.date}</span><p>${item.content}</p></div>
+                <div class="item-actions"><button type="button" class="action-btn" onclick="editAward(${index})">✎</button><button type="button" class="action-btn" onclick="deleteAward(${index})">×</button></div>
+            `;
+            list.appendChild(div);
+        });
+    }
+
+    function editAward(index) {
+        const item = awardData[index];
+        document.getElementById('awardName').value = item.name;
+        document.getElementById('awardDate').value = item.date;
+        document.getElementById('awardContent').value = item.content;
+        document.getElementById('awardEditIndex').value = index;
+        document.getElementById('awardInputArea').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function deleteAward(index) {
+        if(confirm('삭제하시겠습니까?')) {
+            awardData.splice(index, 1);
+            renderAwardList();
+        }
+    }
+
+    document.getElementById('recruitForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        if(confirm('정말 제출하시겠습니까? 제출 후에는 수정이 불가능합니다.')) {
+            alert('지원이 성공적으로 완료되었습니다. 감사합니다!');
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', checkFormValidity);
+</script>
+</body>
+</html>

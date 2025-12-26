@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SUMM&IT</title>
+
+<link rel="icon" type="image/x-icon" href="SUMMIT_Fabicon.ico">
+<link rel="shortcut icon" type="image/x-icon" href="SUMMIT_Fabicon.ico">
+
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+    html { scroll-behavior: smooth; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { 
+        font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+        background-color: #f9f9f9; 
+        color: #333;
+        overflow-x: hidden; 
+    }
+    a { text-decoration: none; color: inherit; }
+    ul { list-style: none; }
+    button { font-family: inherit; cursor: pointer; }
+
+    header {
+        position: fixed; top: 0; left: 0; width: 100%;
+        background-color: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid #eee;
+        z-index: 1000; height: 80px;
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 0 5%;
+    }
+
+    .logo-img { height: 24px; width: auto; object-fit: contain; display: block; }
+
+    .nav-container {
+        display: flex;
+        align-items: center;
+        flex: 1; 
+    }
+
+    .nav-menu { 
+        display: flex; 
+        gap: 40px; 
+        font-size: 16px; 
+        font-weight: 700; 
+        margin: 0 auto; 
+    }
+    
+    .nav-item { cursor: pointer; transition: color 0.3s ease; color: #000; display: block; }
+    .nav-menu:hover .nav-item { color: #ccc; }
+    .nav-menu .nav-item:hover { color: #000; }
+    .nav-item.active-page { color: #009490 !important; }
+
+    .apply-btn {
+        background-color: #009490; color: white;
+        padding: 13px 32px; 
+        border-radius: 8px;
+        font-weight: 700; font-size: 15px; border: none;
+        cursor: pointer; transition: background-color 0.3s ease; white-space: nowrap;
+    }
+    .apply-btn:hover { background-color: #007570; }
+
+    .menu-toggle { display: none; font-size: 24px; cursor: pointer; color: #333; z-index: 1100; }
+
+    main {
+        display: flex; flex-direction: column; align-items: center;
+        padding-top: 80px;
+        padding-bottom: 100px;
+        width: 100%;
+        min-height: 100vh;
+        gap:120px;
+    }
+
+    section, .qna-wrapper { scroll-margin-top: 100px; }
+
+    .section-title {
+        font-size: 42px; font-weight: 800; line-height: 1.3; color: #111; text-align: left;
+        word-break: keep-all; width: 90%; max-width: 1000px;
+    }
+    .section-title span { 
+        color: #888; font-weight: 400; font-size: 20px; display: block; margin-top: 15px; 
+    }
+    .section-title.center { text-align: center; } 
+
+    /*히어로섹션*/
+    .hero-container {
+        width: 100%;
+        height: calc(100vh - 80px); 
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: center;
+    }
+
+    .hero-image-box {
+        position: absolute;
+        top: 0; left: 0;
+        width: 100%;
+        height: 120%;
+        z-index: 1;
+        overflow: hidden;
+        animation: initialZoom 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    }
+
+    .hero-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; 
+        object-position: center;
+        display: block;
+        will-change: transform;
+    }
+
+    .hero-overlay {
+        position: absolute;
+        bottom: 0; left: 0;
+        width: 100%;
+        height: 60%;
+        background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
+        z-index: 2;
+        pointer-events: none;
+    }
+
+    .hero-text-box {
+        position: absolute;
+        bottom: 10%;
+        left: 5%;
+        width: 90%;
+        max-width: 1000px;
+        text-align: left;
+        z-index: 3;
+        color: white;
+        opacity: 0;
+        transform: translateY(30px);
+        animation: fadeInUp 1s ease-out 0.5s forwards;
+    }
+
+    .hero-title {
+        font-size: 56px;
+        font-weight: 800;
+        color: white;
+        margin-bottom: 24px;
+        line-height: 1.2;
+        text-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    .hero-desc {
+        font-size: 22px;
+        line-height: 1.6;
+        color: rgba(255,255,255,0.9);
+        font-weight: 400;
+        max-width: 800px;
+        word-break: keep-all;
+        text-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+
+    /*Q&A 섹션*/
+    .qna-wrapper {
+        display: flex; width: 90%; max-width: 1000px; height: 600px;
+        background-color: #133853; border-radius: 20px; color: white; overflow: hidden;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.15); flex-shrink: 0;
+    }
+    .left-panel { width: 40%; padding: 60px; display: flex; flex-direction: column; justify-content: space-between; }
+    .question-badge { background-color: white; color: #0c1445; font-weight: 800; padding: 6px 16px; border-radius: 30px; font-size: 14px; width: fit-content; margin-bottom: 24px; }
+    .question-text { font-size: 34px; line-height: 1.35; font-weight: 700; word-break: keep-all; }
+    .nav-controls { display: flex; align-items: center; gap: 20px; }
+    .nav-btn { background: none; border: none; color: white; font-size: 28px; cursor: pointer; opacity: 0.5; transition: 0.3s; padding: 0; }
+    .nav-btn:hover { opacity: 1; transform: scale(1.1); }
+    .page-indicator { font-size: 15px; opacity: 0.6; font-weight: 500; letter-spacing: 2px;}
+    
+    .right-panel { 
+        width: 60%; padding: 60px; overflow-y: auto; height: 100%; 
+        scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.2) transparent; 
+        padding-top: 200px; 
+        padding-bottom: 200px;
+    }
+    .right-panel::-webkit-scrollbar { width: 6px; }
+    .right-panel::-webkit-scrollbar-thumb { background-color: rgba(255,255,255,0.2); border-radius: 10px; }
+    .right-panel::-webkit-scrollbar-track { background-color: transparent; }
+    
+    .answer-card { 
+        padding: 36px; border-radius: 18px; margin-bottom: 40px; 
+        color: #111; line-height: 1.65; font-size: 16px; letter-spacing: -0.3px; 
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08); background-color: white; 
+        transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        transform: scale(0.9); opacity: 0.4; filter: grayscale(100%);
+    }
+
+    .answer-card.focused {
+        transform: scale(1); opacity: 1; filter: grayscale(0%);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+
+    .answer-author { margin-top: 24px; font-size: 13px; opacity: 0.6; font-weight: 800; text-transform: uppercase; }
+    .answer-text strong { font-weight: 800; position: relative; z-index: 1; }
+    .answer-text strong::after { content: ''; display: block; position: absolute; bottom: 0; left: 0; width: 100%; height: 8px; background-color: rgba(0,0,0,0.1); z-index: -1; transform: translateY(-4px); }
+    
+    .bg-yellow { background-color: #ffe812; }
+    .bg-purple { background-color: #6c5ce7; color: white; }
+    .bg-purple .answer-text strong::after { background-color: rgba(255,255,255,0.3); }
+    .bg-pink { background-color: #ff7675; color: white; }
+    .bg-pink .answer-text strong::after { background-color: rgba(255,255,255,0.3); }
+    .bg-mint { background-color: #55efc4; }
+
+    /*부서 소개*/
+    .dept-section { 
+        width: 100%; display: flex; flex-direction: column; align-items: center; position: relative; gap: 40px; 
+    }
+    
+    .dept-nav-bar::-webkit-scrollbar { display: none; }
+    .dept-nav-bar { 
+        width: 100%; background-color: #009490; padding: 0 5%; 
+        display: flex; justify-content: center; overflow-x: auto; white-space: nowrap; 
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1); -ms-overflow-style: none; scrollbar-width: none; 
+    }
+    .dept-nav-list { display: flex; max-width: 1000px; width: 100%; justify-content: space-between; }
+    .dept-nav-btn { background: none; border: none; color: rgba(255,255,255,0.6); font-size: 18px; font-weight: 700; padding: 25px 20px; cursor: pointer; transition: all 0.3s; position: relative; }
+    .dept-nav-btn:hover { color: white; }
+    .dept-nav-btn.active { color: white; }
+    .dept-nav-btn.active::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; height: 4px; background-color: white; }
+    
+    .dept-display-area { 
+        width: 90%; 
+        max-width: 1000px; 
+        min-height: 400px;
+        background-color: transparent; 
+        padding: 50px 0; 
+        display: flex; 
+        align-items: center; 
+        justify-content: space-between; 
+        gap: 60px; 
+        animation: fadeIn 0.5s ease-out; 
+        box-shadow: none; 
+        color: #333; 
+    }
+
+    .dept-left { 
+        flex: 1.5; 
+        display: flex; 
+        flex-direction: column; 
+        gap: 20px; 
+        text-align: left;
+    }
+
+    .dept-title-ko { 
+        font-size: 52px; 
+        font-weight: 800; 
+        color: #111; 
+        letter-spacing: -1px; 
+        line-height: 1.1; 
+        margin-bottom: 5px; 
+    }
+    
+    .dept-title-en { 
+        font-size: 18px; 
+        font-weight: 700; 
+        color: #009490; 
+        margin-top: -10px; 
+        display: inline-block; 
+        background: transparent; 
+        padding: 0; 
+        width: fit-content; 
+    }
+    
+    .dept-desc-text { 
+        font-size: 18px; 
+        line-height: 1.7; 
+        color: #444; 
+        word-break: keep-all; 
+        margin-top: 10px; 
+        font-weight: 400;
+    }
+
+    .dept-keywords { 
+        display: flex; 
+        flex-wrap: wrap; 
+        gap: 10px; 
+        justify-content: flex-start; 
+        margin-top: 20px; 
+    }
+    
+    .keyword-tag { 
+        background-color: white; 
+        color: #333; 
+        padding: 10px 20px; 
+        border-radius: 30px; 
+        font-size: 15px; 
+        font-weight: 600; 
+        transition: 0.3s; 
+        border: 1px solid #e0e0e0; 
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05); 
+    }
+    .keyword-tag:hover { 
+        background-color: #009490; 
+        color: white; 
+        border-color: #009490;
+        transform: translateY(-3px); 
+    }
+
+
+    .dept-right { 
+        flex: 1; 
+        display: flex; 
+        flex-direction: column; 
+        align-items: flex-end; 
+        justify-content: center;
+        text-align: right;
+    }
+    
+    .dept-icon-large { 
+        width: 320px; 
+        height: 320px; 
+        object-fit: contain; 
+        animation: float 3s ease-in-out infinite; 
+        filter: drop-shadow(0 15px 30px rgba(0,0,0,0.1));
+    }
+
+    /*팀 문화*/
+    .culture-section { width: 90%; max-width: 1000px; display: flex; flex-direction: column; gap: 50px; }
+    .culture-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .culture-card { position: relative; height: 420px; border-radius: 24px; overflow: hidden; cursor: pointer; background-color: #f0f0f0; box-shadow: 0 10px 30px rgba(0,0,0,0.05); transition: transform 0.3s ease; }
+    .culture-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.15); }
+    .card-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transition: all 0.5s ease; z-index: 1; }
+    .card-content { position: relative; z-index: 2; height: 100%; padding: 40px; display: flex; flex-direction: column; justify-content: space-between; }
+    .card-title { font-size: 28px; font-weight: 800; line-height: 1.4; color: white; text-shadow: 0 2px 10px rgba(0,0,0,0.3); transition: transform 0.4s ease; }
+    .card-desc { font-size: 18px; line-height: 1.6; color: white; opacity: 0; transform: translateY(20px); transition: all 0.4s ease; font-weight: 500; text-shadow: 0 1px 4px rgba(0,0,0,0.5); }
+    .culture-card:hover .card-bg { filter: blur(8px) brightness(0.7); transform: scale(1.1); }
+    .culture-card:hover .card-desc { opacity: 1; transform: translateY(0); }
+    .culture-card:hover .card-title { transform: translateY(-10px); }
+
+    /*인터뷰 인스타그램으로 연결 섹션*/
+    .interview-section { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 40px; position: relative; }
+    .interview-container { width: 90%; max-width: 1200px; position: relative; overflow: hidden; padding: 30px 10px 50px 10px; }
+    .interview-track { display: flex; gap: 20px; transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1); }
+    .interview-card { min-width: 280px; flex: 0 0 23%; display: block; position: relative; border-radius: 20px; overflow: hidden; aspect-ratio: 3 / 4; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.06); transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease; }
+    .interview-card:hover { transform: translateY(-12px); box-shadow: 0 25px 50px rgba(0,0,0,0.15); }
+    .interview-bg { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+    .interview-card:hover .interview-bg { transform: scale(1.05); }
+    .interview-overlay { position: absolute; bottom: 0; left: 0; width: 100%; padding: 30px 24px; background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%); color: white; display: flex; flex-direction: column; gap: 10px; }
+    .interview-tag { font-size: 12px; font-weight: 800; color: #00d2d3; letter-spacing: 1px; }
+    .interview-text { font-size: 18px; font-weight: 700; line-height: 1.4; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+    .carousel-controls { display: flex; gap: 20px; justify-content: center; margin-top: -20px; }
+    .carousel-btn { width: 48px; height: 48px; border-radius: 50%; background: white; border: 1px solid #eee; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; transition: all 0.2s; color: #333; }
+    .carousel-btn:hover { transform: scale(1.1); box-shadow: 0 6px 15px rgba(0,0,0,0.15); color: #009490; border-color: #009490; }
+    
+    footer { width: 100%; background-color: #1a1a1a; color: white; padding: 60px 5%; margin-top: 100px; }
+    .footer-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 40px; }
+    .footer-left { flex: 1; min-width: 250px; }
+    .footer-logo { height: 30px; margin-bottom: 20px; opacity: 0.9; filter: brightness(0) invert(1); }
+    .footer-tagline { font-size: 24px; font-weight: 700; margin-bottom: 10px; }
+    .footer-sub { font-size: 14px; color: #888; margin-bottom: 40px; }
+    .copyright { font-size: 13px; color: #666; }
+    .footer-right { display: flex; gap: 60px; flex-wrap: wrap; }
+    .footer-column h4 { font-size: 14px; font-weight: 700; text-transform: uppercase; margin-bottom: 20px; color: #ccc; }
+    .footer-column p { font-size: 14px; color: #999; margin-bottom: 10px; line-height: 1.6; }
+    
+    .social-icons { display: flex; gap: 15px; margin-top: 20px; }
+    .social-icon { 
+        width: 36px; height: 36px; 
+        background: #333; 
+        border-radius: 4px; 
+        display: flex; align-items: center; justify-content: center; 
+        cursor: pointer; transition: 0.3s;
+        color: #aaa;
+        font-size: 18px;
+    }
+    .social-icon:hover { 
+        background: #555; 
+        color: white; 
+    }
+
+    @keyframes float { 0% { transform: translateY(0); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes initialZoom { from { transform: scale(1.1); } to { transform: scale(1); } }
+
+    @media (max-width: 1024px) { .interview-card { flex: 0 0 48%; } }
+
+    @media (max-width: 768px) {
+        header { padding: 0 20px; justify-content: space-between; }
+        
+        .logo-img { order: 0; }
+        .menu-toggle { display: block; order: 1; margin-left: auto; }
+        
+        .nav-container {
+            display: flex; 
+            position: absolute;
+            top: 79px; 
+            left: 0;
+            width: 100%;
+            background: white;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0;
+            overflow: hidden;
+            max-height: 0;
+            opacity: 0;
+            transition: max-height 0.4s ease-in-out, opacity 0.4s ease-in-out;
+            border-bottom: 1px solid #eee;
+        }
+
+        .nav-container.active {
+            max-height: 500px; 
+            opacity: 1;
+            padding-bottom: 20px;
+        }
+
+        .nav-menu {
+            flex-direction: column;
+            width: 100%;
+            gap: 0;
+            margin: 0; 
+        }
+
+        .nav-item {
+            width: 100%;
+            padding: 20px 24px;
+            font-size: 18px;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        
+        .apply-btn {
+            margin: 20px 24px;
+            width: calc(100% - 48px);
+            text-align: center;
+            display: block; 
+        }
+
+        main { padding-top: 80px; gap: 80px; padding-bottom: 80px; }
+        
+        .hero-title { font-size: 36px; } 
+        .hero-desc { font-size: 16px; }
+        .hero-text-box { width: 90%; left: 5%; bottom: 10%; }
+
+        .section-title { font-size: 28px; width: 90%; }
+        .qna-wrapper { flex-direction: column; height: auto; max-height: 800px; }
+        .left-panel { width: 100%; height: auto; padding: 40px 30px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .right-panel { width: 100%; height: 400px; padding: 30px; padding-top: 150px; padding-bottom: 150px; }
+        .culture-section { gap: 30px; } .culture-grid { grid-template-columns: 1fr; } .culture-card { height: 360px; }
+        .dept-section { gap: 30px; } 
+        
+        .dept-display-area { 
+            flex-direction: column; 
+            padding: 20px 0; 
+            gap: 30px; 
+            text-align: left; 
+            align-items: flex-start; 
+        } 
+        
+        .dept-left { width: 100%; align-items: flex-start; text-align: left; }
+        .dept-right { width: 100%; display: flex; align-items: flex-end; justify-content: flex-end; }
+        .dept-icon-large { margin-top: 0; width: 180px; height: 180px; }
+        
+        .interview-card { flex: 0 0 280px; width: 280px; aspect-ratio: 3/4; }
+
+        .footer-content { flex-direction: column; gap: 40px; } .footer-right { flex-direction: column; gap: 30px; }
+    }
+</style>
+</head>
+<body>
+
+    <header>
+        <a href="index.html"><img src="SUMM&IT logo.png" alt="SUMM&IT" class="logo-img"></a>
+        <div class="menu-toggle" id="mobile-menu-btn">☰</div>
+        <div class="nav-container" id="nav-container">
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-item">써밋 소개</a></li>
+                <li><a href="Projects.html" class="nav-item">프로젝트</a></li>
+                <li><a href="TeamCulture.html" class="nav-item active-page">팀 문화</a></li> 
+                <li><a href="Recruitment.html" class="nav-item">모집 안내</a></li>
+            </ul>
+            <button class="apply-btn" onclick="location.href='Apply.html'">지원하기</button>
+        </div>
+    </header>
+
+    <main>
+        <div class="hero-container">
+            <div class="hero-image-box" id="hero-img-box">
+                <img src="TeamCulture/Teamculture_Hero.jpg" alt="Team" class="hero-img" id="hero-img">
+            </div>
+            <div class="hero-overlay"></div>
+            <div class="hero-text-box">
+                <h1 class="hero-title">Grow Together, SUMM&IT</h1>
+                <p class="hero-desc">
+                    마케팅의 즐거움을 아는 동료들과 함께<br>
+                    지식과 경험을 쌓아가는 여정, 써밋에서 시작하세요.
+                </p>
+            </div>
+        </div>
+
+        <section class="qna-wrapper" id="qna-section">
+            <div class="left-panel">
+                <div>
+                    <div class="question-badge" id="q-badge">Q1</div>
+                    <div class="question-text" id="q-text"></div>
+                </div>
+                <div class="nav-controls">
+                    <button class="nav-btn" id="prev-btn">←</button>
+                    <span class="page-indicator" id="page-indicator">1 / 3</span>
+                    <button class="nav-btn" id="next-btn">→</button>
+                </div>
+            </div>
+            <div class="right-panel" id="answer-list"></div>
+        </section>
+
+        <section class="dept-section" id="dept-section">
+            <div class="section-title">
+                써밋은 모두와 함께 만들어나가요
+                <span>학회원 누구나 학회 운영에 의견을 낼 수 있어요</span>
+            </div>
+            <div class="dept-nav-bar">
+                <div class="dept-nav-list">
+                    <button class="dept-nav-btn active" onclick="showDept('presidency')">회장단</button>
+                    <button class="dept-nav-btn" onclick="showDept('external')">대외협력부</button>
+                    <button class="dept-nav-btn" onclick="showDept('pr')">홍보부</button>
+                    <button class="dept-nav-btn" onclick="showDept('education')">교육부</button>
+                    <button class="dept-nav-btn" onclick="showDept('accounting')">회계부</button>
+                </div>
+            </div>
+            <div class="dept-display-area" id="dept-display"></div>
+        </section>
+
+        <section class="culture-section" id="culture-section">
+            <div class="section-title">
+                마케팅이 궁금하고 마케팅을 사랑하는 누구나
+                <span>학습과 협력을 기반으로 지속 가능한 성장을 함께 도모해요</span>
+            </div>
+            <div class="culture-grid">
+                <div class="culture-card">
+                    <img src="TeamCulture/background1.jpg" alt="Team" class="card-bg">
+                    <div class="card-content">
+                        <h3 class="card-title">서로 신뢰하고 <br> 솔직하게 소통해요</h3>
+                        <p class="card-desc">최고의 결과물을 위해 <br>열정적으로 의견을 주고받고 <br>충돌도 두려워하지 않습니다.</p>
+                    </div>
+                </div>
+                <div class="culture-card">
+                    <img src="TeamCulture/background2.jpg" alt="Meeting" class="card-bg">
+                    <div class="card-content">
+                        <h3 class="card-title">기록은 꼼꼼하게 <br>공유는 투명하게</h3>
+                        <p class="card-desc">모두가 최선를 위한 결정을 내릴 수 있도록, <br>아이디어의 맥락과 흐름, 정보를 <br> 철저히 기록하고 투명하게 공유합니다.</p>
+                    </div>
+                </div>
+                <div class="culture-card">
+                    <img src="TeamCulture/background3.jpg" alt="Work" class="card-bg">
+                    <div class="card-content">
+                        <h3 class="card-title">주도적으로 의견을 제시하고 <br> 적극적으로 참여해요</h3>
+                        <p class="card-desc">우리는 모두 주도적으로 일해요. <br> 누가 시켜서가 아니라 스스로 팀에 기여할 일을 찾고 <br> 몰입을 통해 프로젝트의 재미를 느끼며 성장해요.</p>
+                    </div>
+                </div>
+                <div class="culture-card">
+                    <img src="TeamCulture/background4.jpg" alt="Discussion" class="card-bg">
+                    <div class="card-content">
+                        <h3 class="card-title">지속가능한 성장을 위해 <br> 서로를 자극해요</h3>
+                        <p class="card-desc">좋은 아이디어와 팁은 혼자 알지 않고<br>서로 알려주어 성장의 원동력이 되어줍니다.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="interview-section" id="interview-section">
+            <div class="section-title center">
+                학회원 이야기가 더 궁금하다면
+                <a href="https://www.instagram.com/sogang_summit/?hl=ko" style="font-size: 16px; color: #888; display: block; margin-top: 15px; font-weight: normal; cursor: pointer;">
+                    인스타그램 보러 가기 <span class="link-arrow">→</span>
+                </a>
+            </div>
+            <div class="interview-container">
+                <div class="interview-track" id="car-track">
+                    <a href="https://www.instagram.com/p/DNXT5BLRLFD/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==" class="interview-card">
+                        <img src="TeamCulture/Interviewee_1.jpg" class="interview-bg">
+                        <div class="interview-overlay"><div class="interview-tag">30기 학회장</div><div class="interview-text">신입 부원에서 <br>운영진이 되기까지의 여정</div></div>
+                    </a>
+                    <a href="https://www.instagram.com/p/DNXT8UoRZSl/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==" class="interview-card">
+                        <img src="TeamCulture/Interviewee_2.png" class="interview-bg">
+                        <div class="interview-overlay"><div class="interview-tag">30기 회계/교육부원</div><div class="interview-text">4번 중 4번 1등? <br>1등 머신의 산학 후기</div></div>
+                    </a>
+                    <a href="https://www.instagram.com/reel/DF2TBzAvZhx/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==" class="interview-card">
+                        <img src="TeamCulture/Interviewee_3.png" class="interview-bg">
+                        <div class="interview-overlay"><div class="interview-tag">29기 학회장</div><div class="interview-text">5개 기업과의 산학 협력을 통해 <br> 다양한 분야의 지식을 얻었어요</div></div>
+                    </a>
+                    <a href="https://www.instagram.com/reel/DF2Sws6PYqM/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==" class="interview-card">
+                        <img src="TeamCulture/Interviewee_4.png" class="interview-bg">
+                        <div class="interview-overlay"><div class="interview-tag">29기 대외협력부장</div><div class="interview-text">실전에 마케팅 이론을 적용해 <br> 발전할 수 있었어요</div></div>
+                    </a>
+                    <a href="https://www.instagram.com/reel/DF2SiYzPFqI/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==" class="interview-card">
+                        <img src="TeamCulture/Interviewee_5.png" class="interview-bg">
+                        <div class="interview-overlay"><div class="interview-tag">29기 회계부장</div><div class="interview-text">인턴 지원/실무에 SUMM&IT이 <br>200% 도움이 되었어요</div></div>
+                    </a>
+                    <a href="https://www.instagram.com/p/C-0W7MESodP/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==" class="interview-card">
+                        <img src="TeamCulture/Interviewee_6.png" class="interview-bg">
+                        <div class="interview-overlay"><div class="interview-tag">28기 학회장</div><div class="interview-text">풍부한 포트폴리오와 수상실적이<br> 합격으로 이어질 수 있었어요</div></div>
+                    </a>
+                </div>
+            </div>
+            <div class="carousel-controls">
+                <button class="carousel-btn prev" id="car-prev">‹</button>
+                <button class="carousel-btn next" id="car-next">›</button>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-left">
+                <img src="SUMM&IT logo.png" alt="Logo" class="footer-logo">
+                <div class="footer-tagline">서강대학교 실전 마케팅 학회</div>
+                <div class="footer-sub">실전 압축 경험으로 마케팅의 정상에 도전하다!</div>
+                <div class="copyright">Copyright © 2025 SUMM&IT. All Rights Reserved.</div>
+            </div>
+            <div class="footer-right">
+                <div class="footer-column">
+                    <h4>CONTACT US</h4>
+                    <p>sogangsummit@gmil.com</p>
+                    <p>학회장 010-9969-3078</p>
+                    <div class="social-icons">
+                        <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h4>Location</h4>
+                    <p>서울특별시 마포구 백범로 35</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+<script>
+    const deptData = {
+        'presidency': { titleKo: '회장단', titleEn: 'Presidency', desc: '써밋의 비전을 제시하고 조직 전체를 이끄는 리더십 그룹입니다.', icon: 'TeamCulture/Officers_Icon.png', badge: 'Leadership', keywords: ['#리더십', '#비전설계', '#조직관리', '#총괄기획', '#의사결정'] },
+        'external': { titleKo: '대외협력부', titleEn: 'External Relations', desc: '외부 기업 및 타 대학과의 파트너십을 체결하고 관리합니다.', icon: 'TeamCulture/ExternalRelations_Icon.png', badge: 'Partnership', keywords: ['#기업제휴', '#네트워킹', '#스폰서십', '#연합활동', '#대외소통'] },
+        'pr': { titleKo: '홍보부', titleEn: 'Public Relations', desc: '써밋의 활동과 가치를 대내외에 알리는 목소리입니다.', icon: 'TeamCulture/PublicRelations_Icon.png', badge: 'Branding', keywords: ['#SNS관리', '#카드뉴스', '#영상제작', '#디자인', '#브랜딩'] },
+        'education': { titleKo: '교육부', titleEn: 'Education', desc: '멤버들의 성장을 위한 커리큘럼을 기획하고 운영합니다.', icon: 'TeamCulture/Eduction_Icon.png', badge: 'Growth', keywords: ['#커리큘럼', '#스터디운영', '#세미나', '#역량강화', '#멘토링'] },
+        'accounting': { titleKo: '회계부', titleEn: 'Accounting', desc: '써밋의 자금을 투명하고 효율적으로 관리합니다.', icon: 'TeamCulture/Accounting_Icon.png', badge: 'Finance', keywords: ['#예산편성', '#자금운용', '#회비관리', '#총무', '#투명성'] }
+    };
+
+    function showDept(deptId) {
+        const data = deptData[deptId];
+        const display = document.getElementById('dept-display');
+        if (typeof event !== 'undefined' && event && event.target && event.target.classList) {
+             document.querySelectorAll('.dept-nav-btn').forEach(btn => btn.classList.remove('active'));
+             event.target.classList.add('active'); 
+        }
+        const keywordsHtml = data.keywords.map(k => `<span class="keyword-tag">${k}</span>`).join('');
+        
+        display.innerHTML = `
+            <div class="dept-left">
+                <div class="dept-title-en">${data.titleEn}</div>
+                <div class="dept-title-ko">${data.titleKo}</div>
+                <div class="dept-desc-text">${data.desc}</div>
+                <div class="dept-keywords">${keywordsHtml}</div>
+            </div>
+            <div class="dept-right">
+                <img src="${data.icon}" class="dept-icon-large" alt="${data.titleKo} 아이콘">
+            </div>
+        `;
+        display.style.animation = 'none';
+        display.offsetHeight; 
+        display.style.animation = 'fadeIn 0.5s ease-out';
+    }
+
+    const track = document.getElementById('car-track');
+    let carIndex = 0;
+
+    function moveCarousel(direction) {
+        const cards = track.children;
+        const cardWidth = cards[0].offsetWidth + 20; 
+        const maxIndex = cards.length - 1; 
+        const containerWidth = track.parentElement.offsetWidth;
+        const visibleCards = Math.floor(containerWidth / cardWidth);
+        const maxScrollIndex = cards.length - visibleCards;
+
+        if (direction === 'next') {
+            if (carIndex < maxScrollIndex) carIndex++;
+            else carIndex = 0; 
+        } else {
+            if (carIndex > 0) carIndex--;
+        }
+        track.style.transform = `translateX(-${carIndex * cardWidth}px)`;
+    }
+
+    document.getElementById('car-next').addEventListener('click', () => moveCarousel('next'));
+    document.getElementById('car-prev').addEventListener('click', () => moveCarousel('prev'));
+
+    document.getElementById('mobile-menu-btn').addEventListener('click', () => {
+        document.getElementById('nav-container').classList.toggle('active');
+    });
+
+    document.querySelectorAll('.nav-item').forEach(link => {
+        link.addEventListener('click', () => {
+            document.getElementById('nav-container').classList.remove('active');
+        });
+    });
+
+    function updateFocus() {
+        const panel = document.getElementById('answer-list');
+        if (!panel) return;
+
+        const panelRect = panel.getBoundingClientRect();
+        const panelCenter = panelRect.top + panelRect.height / 2; 
+
+        const cards = panel.querySelectorAll('.answer-card');
+        
+        let closestCard = null;
+        let minDistance = Infinity;
+
+        cards.forEach(card => {
+            const cardRect = card.getBoundingClientRect();
+            const cardCenter = cardRect.top + cardRect.height / 2;
+            const distance = Math.abs(panelCenter - cardCenter);
+
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestCard = card;
+            }
+            
+            card.classList.remove('focused');
+        });
+
+        if (closestCard && minDistance < 200) { 
+            closestCard.classList.add('focused');
+        }
+    }
+
+    const qnaData = [
+        { id: 1, question: "활동하면서 느낀\n 써밋만의 장점은\n무엇인가요?", answers: [
+            { text: "저는 <strong>풍부한 실전경험</strong>이라고 생각합니다. <br> 특히 기획안에 대해 교수님, 실무진의 피드백을 받아볼 수 있는 점은 특히 값진 경험이에요. 또한 '상황분석, 인사이트 파악, 전략 구성, 피드백' 이 일련의 체계 속에서 실무역량이 크게 성장하는 것을 느낄 수 있었는데요. 산학협력이 메인 활동인 만큼, 써밋에서는 실전 경험을 통해서 마케팅적 사고의 폭을 넓혀갈 수 있는 것 같아요", author: "30기 학회장 조현경", color: "bg-yellow" },
+            { text: "우선 한 학기 동안 써밋으로 활동하며 <strong>논리적으로 사고할 수 있는 연습</strong>을 할 수 있었습니다.<br> 또한, 기업과 연계된 산학협력 프로젝트를 진행하며 기업의 현 상황과 소비자에게 맞는 아이디어를 제시해볼 수 있었습니다. 특히 소비자의 니즈를 파악하며 아이디어를 제시하는 과정은 향후 마케팅 직무를 수행할 때 큰 도움이 될 것이라고 생각합니다.", author: "28기 회계부장 김경빈", color: "bg-purple" },
+            { text: "먼저 써밋의 가장 큰 장점은 <strong>똑똑하고 멋진 학회원들</strong>입니다! <br> 훌륭한 친구들과 여러 프로젝트를 진행하면서 많이 배웠습니다. 심지어 다들 열정적이고 성실하기까지 해서 학회 활동을 통해 긍정적인 에너지를 자주 얻는 것 같아요. 이런 사람들과 함께하니 어려운 프로젝트들도 척척 해낼 수 있구요!", author: "29기 대외협력부원 권효령", color: "bg-pink" },
+            { text: "저는 실제로 <strong> 수업에서 배운 이론을 적용해볼 수 있다</strong>는 게 가장 장점인 것 같습니다.<br> 이론만 배우면 아무래도 와닿지 않을 때가 많은데요. 소비자 행동론 등 마케팅 이론에서 배울 수 있었던 사례들을 실제로 이제 기업의 산학협력에서 아이데이션 과정에 적용함으로써 그 지식을 휘발되지 않고 더 오랫동안 유지할 수 있었기 때문에 그러한 측면에서 제 마케팅 지식이나 실무 등을 조금 더 발전시킬 수 있었다고 생각합니다.", author: "29기 대외협력부장 김선우", color: "bg-mint" },
+            { text: "써밋의 장점은 단연 <strong>체계적인 산학협력</strong>입니다. <br> 써밋 학회원들은 자체 산학협력 뿐만 아니라 IBS라는 학회 연합에서의 산학협력까지 경험하게 되는데요. 탄탄한 산학협력 커리큘럼 속에서 실무적인 역량을 체계적으로 길러나갈 수 있었습니다.", author: "29기 회계부장 이지영", color: "bg-yellow" } ] },
+        { id: 2, question: "학회 활동 중\n가장 기억에 남은 에피소드가 있나요?", answers: [
+            { text: "<strong>GS칼텍스와의 산학협력</strong>은 가장 오래 고민했던 프로젝트였습니다.<br> 주제가 '주유 앱 가입 및 사용 유도 전략'이었는데 팀원 모두 면허가 없어 각자 부모님과 함께 주유소를 방문해 직접 앱을 사용해 보았습니다. 일종의 주유소 현장 체험이었죠. 저희는 이경험을 바탕으로 기획서의 논리 구조를 구성했습니다. 이후 실제 피드백에서 긍정적인 반응을 받을 수 있었는데요. 현장 경험에서 얻은 인사이트를 바탕으로 전개한 논리가 좋게 작용했던 것 같아요.", author: "30기 학회장 조현경", color: "bg-purple" },
+            { text: "<strong>동아제약 아일로와의 산학협력</strong>이 가장 기억에 남습니다.<br> 1차 피드백 당시 저희 팀 논리 구조에 모호한 부분이 있었는데, 이를 사측에서 지적해 주셔서 심기일전했었습니다. 최종 발표에서도 태도나 KPI 등 구체적인 피드백을 주셔서 많은 것을 배울 수 있었고, 다른 산학에서도 이를 적극 반영해 좋은 평가를 받았습니다.", author: "30기 회계/교육부원 김솔", color: "bg-yellow" },
+            { text: "협업 툴을 적극 활용하여...", author: "개발자 KIM", color: "bg-mint" } ] },
+        { id: 3, question: "써밋에 지원하게 된\n계기는 무엇인가요?", answers: [
+            { text: "제가 SUMM&IT을 선택한 이유는 실전 마케팅 학회의 <strong>'실전'이라는 키워드</strong>에 꽂혔기 때문인데요. 국내 유수의 기업과 산학협력을 진행하면서 기업이 어떤 목표로, 어떻게 소비자들에게 다가가는지 그 과정을 참여할 수 있었기 때문에 저는 SUMM&IT을 선택하게 되었습니다.", author: "30기 대외협력부장 김선우", color: "bg-mint" },
+            { text: "SUMM&IT만의 체계적인 산학협력을 통해 마케팅에 대한 심도 있는 학습과 실전에서의 활용을 경험하고 싶어 지원하게 되었습니다. 제 꿈은 코스메틱 기업의 마케터가 되는 것인데요. 이를 실현하기 위해 관련 대외활동을 하거나 마케팅 특강을 수강하는 등 노력을 했으나 실질적인 마케팅 이해는 부족했습니다. 교수님과 실무진들의 피드백 위주의 기업 마케팅을 피부로 느끼고 싶어 지원했습니다.", author: "29기 대외협력부원 이윤재", color: "bg-pink" },
+            { text: "마케팅에 관심이 있어서 찾게 된 것이 써밋이었습니다. 백문이 불여일견이라는 말이 있듯이 서강대에서 유일한 실전 마케팅 학회인 써밋에서의 경험 1번이 얼마나 소중할까 생각했었습니다.", author: "29기 홍보부장 카와사키 유키", color: "bg-yellow" } ] },
+        { id: 4, question: "나만의 \n써밋 지원 꿀팁이 있다면?", answers: [
+            { text: "저의 지원 팁은 <strong>마케팅 인사이트나 영감을 어디서 얻었는지, 마케팅에 대한 관심이 단발적이 아닌 지속적으로 이어져 왔다는 점을 강조한 것</strong>이 면접에서 좋은 점수를 받은 비결이라고 생각합니다. 마지막으로, '학회'라는 명칭이 진입 장벽으로 느껴질 수 있지만, 배우고자 하는 열정이 있고 마케팅 활동에서 더 많은 인사이트를 얻고 싶은 분이라면 SUMM&IT은 언제나 두 팔 벌려 환영하고 받아들일 준비가 되어 있습니다.", author: "30기 학회장 최서연", color: "bg-mint" },
+            { text: "저는 우선은 제가 실제로 마케팅 어떤 인사이트나 영감 등을 어디서 얻는지 좀 많이 어필을 했던 거 같고요. 그래서 마케팅에 대한 관심이 단순히 단발적인 게 아니라 지속적으로 이어져 왔다는 걸 강조를 했기 때문에 면접에서 조금 좋은 점수를 받지 않았나 싶습니다.", author: "30기 대외협력부장 김선우", color: "bg-pink" },
+            { text: "사실 써밋을 들어오기 전의 저를 회상하면 정말 부족했던 것 같아요. 누군가는 스스로 부족하다고 느껴서 지원을 망설이고 계실텐데요. 미흡한 분이 있을지라도 적극성을 어필하신다면 소중한 기회가 열릴 겁니다.", author: "28기 부학회장 서유림", color: "bg-yellow" } ] }
+    ];
+
+    let currentIndex = 0;
+    const qBadge = document.getElementById('q-badge');
+    const qText = document.getElementById('q-text');
+    const answerList = document.getElementById('answer-list');
+    const pageIndicator = document.getElementById('page-indicator');
+
+    function renderSlide(index) {
+        const data = qnaData[index];
+        qText.style.opacity = 0;
+        setTimeout(() => { qBadge.textContent = `Q${data.id}`; qText.innerText = data.question; qText.style.opacity = 1; }, 200);
+        pageIndicator.textContent = `${index + 1} / ${qnaData.length}`;
+        answerList.innerHTML = '';
+        
+        data.answers.forEach((ans, i) => {
+            const card = document.createElement('div');
+            card.className = `answer-card ${ans.color}`;
+            card.innerHTML = `<div class="answer-text">${ans.text}</div><div class="answer-author">${ans.author}</div>`;
+            answerList.appendChild(card);
+        });
+        
+        answerList.scrollTop = 0;
+        setTimeout(updateFocus, 100); 
+    }
+
+    document.getElementById('answer-list').addEventListener('scroll', updateFocus);
+
+    document.getElementById('prev-btn').addEventListener('click', () => { if (currentIndex > 0) { currentIndex--; renderSlide(currentIndex); } });
+    document.getElementById('next-btn').addEventListener('click', () => { if (currentIndex < qnaData.length - 1) { currentIndex++; renderSlide(currentIndex); } });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        showDept('presidency');
+        renderSlide(0);
+        document.querySelector('.dept-nav-btn').classList.add('active'); 
+    });
+
+    window.addEventListener('scroll', () => {
+        const scrollPosition = window.scrollY;
+        const heroImg = document.getElementById('hero-img');
+        const heroBox = document.getElementById('hero-img-box');
+        
+        if (heroBox && scrollPosition < heroBox.offsetHeight) {
+            heroImg.style.transform = `translateY(${scrollPosition * 0.4}px) scale(1)`;
+        }
+    });
+</script>
+</body>
+</html>
